@@ -1,0 +1,4 @@
+
+if (AM_PLATFORM STREQUAL EMBEDDED_LINUX_CC)
+    message(FATAL_ERROR "AM_PLATFORM toolchain EMBEDDED_LINUX_CC unhandled" )
+endif ()
