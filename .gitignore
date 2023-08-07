@@ -4,3 +4,7 @@ build
 cmake-*
 
 bin/app_*
+
+artnet-mapper-generator/assets/*/
+
+__pycache__

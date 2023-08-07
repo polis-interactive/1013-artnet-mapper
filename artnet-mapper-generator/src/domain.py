@@ -1,3 +1,5 @@
+from __future__ import annotations
+from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List
@@ -7,6 +9,12 @@ from typing import Dict, List
 class Point:
     x: int
     y: int
+
+    def __eq__(self, other: Point):
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
 
 
 @dataclass(kw_only=True)
@@ -29,7 +37,7 @@ class Direction1d(Enum):
         return True if self == Direction1d.Up or self == Direction1d.Down else False
 
     def direction_is_positive(self) -> bool:
-        return True if self == Direction1d.Up or self == Direction1d.Right else False
+        return True if self == Direction1d.Down or self == Direction1d.Right else False
 
 
 @dataclass
@@ -42,8 +50,8 @@ class Universe:
 
 @dataclass
 class InstallationLayout:
-    universe_map: Dict[int, Universe] = field(default_factory=Dict)
-    controllers: Dict[str, List[int]] = field(default_factory=Dict)
+    universes: Dict[int, Universe] = field(default_factory=dict)
+    controllers: Dict[str, List[int]] = field(default_factory=dict)
 
 
 @dataclass
@@ -52,3 +60,9 @@ class InstallationConfig:
     rgbw_pixels: bool
     dimensions: Box
     pixel_types: int
+
+
+@dataclass(kw_only=True)
+class OutputConfig:
+    output_directory: str
+    output_prefix: str

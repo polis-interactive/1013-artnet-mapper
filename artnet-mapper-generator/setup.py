@@ -8,6 +8,7 @@ setup(
     install_requires=[
         'Pillow>=10.0.0',
         'jsonschema>=4.18.6',
-        'numpy>=1.25'
+        'numpy>=1.25',
+        'numpngw>=0.1.2'
     ],
 )
