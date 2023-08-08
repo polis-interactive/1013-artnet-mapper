@@ -17,6 +17,11 @@
 
 namespace infrastructure::graphics {
 
+    struct GraphicsManager {
+        virtual void PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) = 0;
+    };
+    typedef std::shared_ptr<GraphicsManager> GraphicsManagerPtr;
+
     /* graphics needs to be shutdown last */
 
     class Graphics: public std::enable_shared_from_this<Graphics> {
