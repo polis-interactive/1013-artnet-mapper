@@ -8,3 +8,5 @@ bin/app
 artnet-mapper-generator/assets/*/
 
 __pycache__
+
+*.img
