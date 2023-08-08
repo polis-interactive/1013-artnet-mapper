@@ -6,6 +6,7 @@
 #define INFRASTRUCTURE_UNIVERSE_HPP
 
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <atomic>
 
