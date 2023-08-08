@@ -17,13 +17,13 @@ namespace service {
     };
 
     class Service;
-    typedef std::shared_ptr<Service> EmbeddedServicePtr;
+    typedef std::shared_ptr<Service> ServicePtr;
 
     class Service:
         public std::enable_shared_from_this<Service>
     {
     public:
-        [[nodiscard]] static EmbeddedServicePtr Create(const ServiceConfig &config);
+        [[nodiscard]] static ServicePtr Create(const ServiceConfig &config);
         Service();
         void Start();
         void Stop();

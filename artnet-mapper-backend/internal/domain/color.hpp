@@ -69,11 +69,11 @@ namespace domain {
         }
 
         static CRGB from_json(const nlohmann::json& j) {
-            return {
-                .r = j.at("r").get<uint8_t>(),
-                .g = j.at("g").get<uint8_t>(),
-                .b = j.at("b").get<uint8_t>()
-            };
+            CRGB color = { 0 };
+            color.r = j.at("r").get<uint8_t>();
+            color.g = j.at("g").get<uint8_t>();
+            color.b = j.at("b").get<uint8_t>();
+            return color;
         }
 
         static inline CRGBW SubtractWhite(const CRGB &color, const CRGB &white);
@@ -108,12 +108,12 @@ namespace domain {
         }
 
         static CRGBW from_json(const nlohmann::json& j) {
-            return {
-                .r = j.at("r").get<uint8_t>(),
-                .g = j.at("g").get<uint8_t>(),
-                .b = j.at("b").get<uint8_t>(),
-                .w = j.at("w").get<uint8_t>()
-            };
+            CRGBW color = { 0 };
+            color.r = j.at("r").get<uint8_t>();
+            color.g = j.at("g").get<uint8_t>();
+            color.b = j.at("b").get<uint8_t>();
+            color.w = j.at("w").get<uint8_t>();
+            return color;
         }
     };
 
@@ -128,18 +128,17 @@ namespace domain {
             const auto pct_white = c_white / (double) c_color;
             min_pct_white = std::min(min_pct_white, pct_white);
         }
-        const CRGB subtract{
-            .r = (uint8_t) std::max(std::min(std::floor(white.r * min_pct_white), 255.0), 0.0),
-            .g = (uint8_t) std::max(std::min(std::floor(white.g * min_pct_white), 255.0), 0.0),
-            .b = (uint8_t) std::max(std::min(std::floor(white.b * min_pct_white), 255.0), 0.0),
-        };
+        CRGB subtract = { 0 };
+        subtract.r = (uint8_t) std::max(std::min(std::floor(white.r * min_pct_white), 255.0), 0.0);
+        subtract.g = (uint8_t) std::max(std::min(std::floor(white.g * min_pct_white), 255.0), 0.0);
+        subtract.b = (uint8_t) std::max(std::min(std::floor(white.b * min_pct_white), 255.0), 0.0);
         const auto white_value = (uint8_t) (255.0 * min_pct_white);
-        return CRGBW{
-            .r = (uint8_t) std::min(std::max(color.r - subtract.r, 0), 255),
-            .g = (uint8_t) std::min(std::max(color.g - subtract.g, 0), 255),
-            .b = (uint8_t) std::min(std::max(color.b - subtract.b, 0), 255),
-            .w = white_value
-        };
+        CRGBW out = { 0 };
+        out.r = (uint8_t) std::min(std::max(color.r - subtract.r, 0), 255);
+        out.g = (uint8_t) std::min(std::max(color.g - subtract.g, 0), 255);
+        out.b = (uint8_t) std::min(std::max(color.b - subtract.b, 0), 255);
+        out.w = white_value;
+        return out;
     }
 }
 

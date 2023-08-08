@@ -1,8 +1,8 @@
 
 if (AM_PLATFORM STREQUAL EMBEDDED_LINUX)
-    set(BOOST_ROOT "/home/polis/build/boost_1_81_0")
+    set(BOOST_ROOT "/home/pi/build/boost_1_81_0")
 elseif (AM_PLATFORM STREQUAL EMBEDDED_LINUX_CC)
-    set(BOOST_ROOT "${TARGET_ROOTFS}/home/polis/build/boost_1_81_0")
+    set(BOOST_ROOT "${TARGET_ROOTFS}/home/pi/build/boost_1_81_0")
 elseif (AM_PLATFORM STREQUAL X86_LINUX)
     set(BOOST_ROOT "/usr/local/lib/boost_1_81_0")
 endif ()

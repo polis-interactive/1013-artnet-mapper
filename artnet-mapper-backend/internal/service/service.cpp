@@ -6,7 +6,7 @@
 
 namespace service {
 
-    EmbeddedServicePtr Service::Create(const service::ServiceConfig &config) {
+    ServicePtr Service::Create(const service::ServiceConfig &config) {
         auto embedded_service = std::make_shared<Service>();
         embedded_service->initialize(config);
         return embedded_service;

@@ -1,0 +1,13 @@
+[Unit]
+Description=Niagara Application
+StartLimitBurst=6
+StartLimitIntervalSec=360
+
+[Service]
+Restart=on-failure
+RestartForceExitStatus=HUP
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/pi/build/1014-artnet-mapper/artnet-mapper-backend/bin/app 2039-Niagara
+
+[Install]
+WantedBy=multi-user.target
