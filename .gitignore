@@ -3,7 +3,7 @@
 build
 cmake-*
 
-bin/app_*
+bin/app
 
 artnet-mapper-generator/assets/*/
 

@@ -11,11 +11,11 @@
 
 #include "../common.hpp"
 
-#include "utility/untyped_buffer.hpp"
+#include "utility/buffers.hpp"
 
 namespace infrastructure::graphics {
 
-    class PixelBuffer: public utility::UnsizedBuffer {
+    class PixelBuffer: public utility::SizedBuffer {
     public:
         [[nodiscard]] void *GetMemory() final;
         ~PixelBuffer();

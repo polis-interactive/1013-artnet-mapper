@@ -20,7 +20,7 @@
 #include <GL/glext.h>
 
 
-#include "domain/installation_summary.hpp"
+#include "domain/installation.hpp"
 
 namespace infrastructure::graphics {
 
