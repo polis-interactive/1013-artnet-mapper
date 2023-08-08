@@ -7,19 +7,21 @@
 
 #include "infrastructure/art_net/art_net.hpp"
 #include "infrastructure/asio/context.hpp"
-// #include "infrastructure/graphics/graphics.hpp"
+#include "infrastructure/graphics/graphics.hpp"
 
 namespace service {
 
     struct ServiceConfig {
         infrastructure::ArtNetConfig art_net_config;
         infrastructure::AsioContextConfig asio_context_config;
+        infrastructure::Graphics graphics_config;
     };
 
     class Service;
     typedef std::shared_ptr<Service> ServicePtr;
 
     class Service:
+        public infrastructure::GraphicsManager,
         public std::enable_shared_from_this<Service>
     {
     public:
@@ -31,7 +33,7 @@ namespace service {
 
         /* Manager Members */
         // graphics
-        void PostGraphicsUpdate(utility::SizedBufferPtr &&pixels);
+        void PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) final;
 
 
         // no copy assignment
@@ -42,6 +44,7 @@ namespace service {
         std::atomic_bool _is_started = false;
         infrastructure::ArtNetPtr _art_net;
         infrastructure::AsioContextPtr _asio_context;
+        infrastructure::GraphicsPtr _graphics;
     };
 }
 

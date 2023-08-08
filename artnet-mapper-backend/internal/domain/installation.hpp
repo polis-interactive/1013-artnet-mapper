@@ -33,15 +33,34 @@ namespace domain {
         }
 
         static Universe from_json(const nlohmann::json& j) {
-            return {
-                .pixel_count = j.at("pixel_count"),
-                .pixel_width = j.at("pixel_width"),
-                .start_index = j.at("start_index")
-            };
+            Universe universe = { 0 };
+            universe.pixel_count = j.at("pixel_count");
+            universe.pixel_width = j.at("pixel_width");
+            universe.start_index = j.at("start_index");
+            return universe;
         }
     };
 
     typedef std::map<unsigned int, Universe> UniverseMap;
+
+    struct Dimensions {
+        unsigned int width;
+        unsigned int height;
+
+        [[nodiscard]] nlohmann::json to_json() const {
+            nlohmann::json j;
+            j["width"] = width;
+            j["height"] = height;
+            return j;
+        }
+
+        static Dimensions from_json(const nlohmann::json& j) {
+            Dimensions dimensions = { 0 };
+            dimensions.width = j.at("width");
+            dimensions.height = j.at("height");
+            return dimensions;
+        }
+    };
 
     namespace installation {
 
@@ -71,52 +90,66 @@ namespace domain {
 
         struct Config {
 
-            unsigned int buffer_count = 1;
-
             /* these should really be at the universe level / pixel level but w.e */
             bool rgbw_pixels = false;
+            unsigned int pixel_types = 1;
+            unsigned int pixel_multiplier = 1;
+
+            Dimensions dimensions;
+
+            double fps = 30.0;
+            double target_fps = 25.0;
+
+            std::optional<CRGB> color_correction;
+            std::optional<float> gamma;
+
             // only relevant to rgbw pixels
             std::optional<unsigned int> color_temperature;
             std::optional<CRGB> white_color;
-            // available to all
-            std::optional<CRGB> color_correction;
-            std::optional<float> gamma;
 
 
             [[nodiscard]] nlohmann::json to_json() const {
                 nlohmann::json j;
-                j["buffer_count"] = buffer_count;
                 j["rgbw_pixels"] = rgbw_pixels;
-                if (color_temperature.has_value()) {
-                    j["color_temperature"] = color_temperature.value();
-                }
-                if (white_color.has_value()) {
-                    j["white_color"] = white_color.value().to_json();
-                }
+                j["pixel_types"] = pixel_types;
+                j["pixel_multiplier"] = pixel_multiplier;
+                j["dimensions"] = dimensions.to_json();
+                j["fps"] = fps;
+                j["target_fps"] = target_fps;
                 if (color_correction.has_value()) {
                     j["color_correction"] = color_correction.value().to_json();
                 }
                 if (gamma.has_value()) {
                     j["gamma"] = gamma.value();
                 }
+                if (color_temperature.has_value()) {
+                    j["color_temperature"] = color_temperature.value();
+                }
+                if (white_color.has_value()) {
+                    j["white_color"] = white_color.value().to_json();
+                }
                 return j;
             }
 
             static Config from_json(const nlohmann::json& j) {
                 Config c;
-                c.buffer_count = j.at("buffer_count").get<unsigned int>();
                 c.rgbw_pixels = j.at("rgbw_pixels").get<bool>();
-                if (j.contains("color_temperature")) {
-                    c.color_temperature = { j.at("color_temperature").get<unsigned int>() };
-                }
-                if (j.contains("white_color")) {
-                    c.white_color = { CRGB::from_json(j.at("white_color")) };
-                }
+                c.pixel_types = j.at("pixel_types").get<unsigned int>();
+                c.pixel_multiplier = j.at("pixel_multiplier").get<unsigned int>();
+                c.dimensions = { Dimensions::from_json(j.at("dimensions")) };
+                c.fps = j.at("fps").get<double>();
+                c.target_fps = j.at("target_fps").get<double>();
                 if (j.contains("color_correction")) {
                     c.color_correction = { CRGB::from_json(j.at("color_correction")) };
                 }
                 if (j.contains("gamma")) {
                     c.gamma = { j.at("gamma").get<float>() };
+                }
+                if (j.contains("color_temperature")) {
+                    c.color_temperature = { j.at("color_temperature").get<unsigned int>() };
+                }
+                if (j.contains("white_color")) {
+                    c.white_color = { CRGB::from_json(j.at("white_color")) };
                 }
                 return c;
             }

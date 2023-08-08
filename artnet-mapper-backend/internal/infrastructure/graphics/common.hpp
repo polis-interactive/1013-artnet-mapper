@@ -2,8 +2,8 @@
 // Created by brucegoose on 7/5/23.
 //
 
-#ifndef INFRASTRUCTURE_GRAPHICS_CONFIG_HPP
-#define INFRASTRUCTURE_GRAPHICS_CONFIG_HPP
+#ifndef INFRASTRUCTURE_GRAPHICS_COMMON_HPP
+#define INFRASTRUCTURE_GRAPHICS_COMMON_HPP
 
 #include <string>
 
@@ -21,26 +21,25 @@
 
 
 #include "domain/installation.hpp"
+#include "domain/display.hpp"
 
-namespace infrastructure::graphics {
+namespace infrastructure {
 
-    enum class RendererType {
-        GLFW,
-        HEADLESS
-    };
-
-    struct Config {
-        const RendererType graphics_renderer_type;
-        const domain::InstallationSummary graphics_summary;
-        const std::string graphics_shader;
-        const std::string graphics_pixel_texture;
-        const std::string graphics_artnet_texture;
-        const unsigned int graphics_pbo_count;
-        const unsigned int graphics_fps;
+    struct GraphicsConfig {
+        domain::Display display;
+        domain::installation::Config installation_config;
+        domain::installation::Layout installation_layout;
+        static GraphicsConfig from_source(const nlohmann::json& j, const std::filesystem::path &assets_dir) {
+            GraphicsConfig conf{};
+            conf.display = domain::Display::from_source(j.at("display"), assets_dir);
+            conf.installation_config = domain::installation::Config::from_json(j.at("installation_config"));
+            conf.installation_layout = domain::installation::Layout::from_json(j.at("installation_layout"));
+            return conf;
+        }
     };
 
 }
 
 
 
-#endif //INFRASTRUCTURE_GRAPHICS_CONFIG_HPP
+#endif //INFRASTRUCTURE_GRAPHICS_COMMON_HPP

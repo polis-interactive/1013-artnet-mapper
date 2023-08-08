@@ -1,0 +1,94 @@
+{
+  "art_net_buffer_count": 3,
+  "asio_pool_size": 2,
+  "auth_jwt_expiry": 1800,
+  "auth_jwt_refresh": 1200,
+  "db_name": "lighting.db",
+  "db_clear": false,
+  "db_seed": true,
+  "installation_config": {
+    "buffer_count": 4,
+    "rgbw_pixels": false,
+    "dimensions": {
+      "width": 42,
+      "height": 48
+    },
+    "pixel_types": 4,
+    "fps": 30.0,
+    "threshold_fps": 25.0,
+    "pixel_multiplier": 4
+  },
+  "installation_layout": {
+    "universes": {
+      "0": {
+        "id": 0,
+        "pixel_width": 3,
+        "start_index": 0,
+        "pixel_count": 170
+      },
+      "1": {
+        "id": 1,
+        "pixel_width": 3,
+        "start_index": 510,
+        "pixel_count": 170
+      },
+      "2": {
+        "id": 2,
+        "pixel_width": 3,
+        "start_index": 1020,
+        "pixel_count": 170
+      },
+      "3": {
+        "id": 3,
+        "pixel_width": 3,
+        "start_index": 1530,
+        "pixel_count": 170
+      },
+      "4": {
+        "id": 4,
+        "pixel_width": 3,
+        "start_index": 2040,
+        "pixel_count": 170
+      },
+      "5": {
+        "id": 5,
+        "pixel_width": 3,
+        "start_index": 2550,
+        "pixel_count": 170
+      },
+      "6": {
+        "id": 6,
+        "pixel_width": 3,
+        "start_index": 3060,
+        "pixel_count": 170
+      },
+      "7": {
+        "id": 7,
+        "pixel_width": 3,
+        "start_index": 3570,
+        "pixel_count": 170
+      },
+      "8": {
+        "id": 8,
+        "pixel_width": 3,
+        "start_index": 4080,
+        "pixel_count": 170
+      },
+      "9": {
+        "id": 9,
+        "pixel_width": 3,
+        "start_index": 4590,
+        "pixel_count": 170
+      },
+      "10": {
+        "id": 10,
+        "pixel_width": 3,
+        "start_index": 5100,
+        "pixel_count": 4
+      }
+    },
+    "controllers": {
+      "69.4.20.4": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    }
+  }
+}

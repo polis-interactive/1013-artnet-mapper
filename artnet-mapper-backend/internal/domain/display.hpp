@@ -6,72 +6,62 @@
 #define DOMAIN_DISPLAY_HPP
 
 #include <nlohmann/json.hpp>
+#include <filesystem>
 
 #include "color.hpp"
 
 namespace domain {
 
-    /* high-jacking this to switch between glfw and headless */
-
-    enum class DisplayType {
-        RGB = 0,
-        RGBW,
-        RGB_WITH_W_INTERPOLATION
+    enum class RendererType {
+        GLFW,
+        HEADLESS
     };
 
     struct Display {
-        double fps;
-        DisplayType type;
-        std::optional<domain::CRGB> rgb_color;
-        std::optional<domain::CRGBW> rgbw_color;
+        RendererType render_type;
+        std::filesystem::path assets_dir;
+        std::string shader;
+        std::string pixel_texture;
+        std::string art_net_texture;
+        unsigned int buffer_count;
 
-        [[nodiscard]] std::string DisplayTypeToString() const {
-            if (type == DisplayType::RGB) {
-                return "RGB";
-            } else if (type == DisplayType::RGBW) {
-                return "RGBW";
-            } else if (type == DisplayType::RGB_WITH_W_INTERPOLATION) {
-                return "RGB_WITH_W_INTERPOLATION";
+        [[nodiscard]] std::string RendererTypeToString() const {
+            if (render_type == RendererType::GLFW) {
+                return "GLFW";
+            } else if (render_type == RendererType::HEADLESS) {
+                return "HEADLESS";
             }
         }
 
         [[nodiscard]] nlohmann::json to_json() const {
             nlohmann::json j;
-            j["fps"] = fps;
-            j["type"] = DisplayTypeToString();
-            if (type == DisplayType::RGBW) {
-                assert(rgbw_color.has_value());
-                j["rgbw_color"] = rgbw_color.value().to_json();
-            } else {
-                assert(rgb_color.has_value());
-                j["rgb_color"] = rgb_color.value().to_json();
-            }
+            j["render_type"] = RendererTypeToString();
+            j["assets_dir"] = assets_dir.string();
+            j["shader"] = shader;
+            j["pixel_texture"] = pixel_texture;
+            j["art_net_texture"] = art_net_texture;
+            j["buffer_count"] = buffer_count;
             return j;
         }
 
-        static DisplayType DisplayTypeFromString(const std::string &display_type) {
-            if (display_type == "RGB") {
-                return DisplayType::RGB;
-            } else if (display_type == "RGBW") {
-                return DisplayType::RGBW;
-            } else if (display_type == "RGB_WITH_W_INTERPOLATION") {
-                return DisplayType::RGB_WITH_W_INTERPOLATION;
+        static RendererType RendererTypeFromString(const std::string &render_type) {
+            if (render_type == "GLFW") {
+                return RendererType::GLFW;
+            } else if (render_type == "HEADLESS") {
+                return RendererType::HEADLESS;
             } else {
-                throw std::domain_error("Unknown domain::DisplayType: " + display_type);
+                throw std::domain_error("Unknown domain::RenderType: " + render_type);
             }
         }
 
-        static Display from_json(const nlohmann::json& j) {
+        static Display from_source(const nlohmann::json& j, const std::filesystem::path &assets_dir) {
             Display d;
-            d.fps = j.at("fps").get<double>();
-            d.type = DisplayTypeFromString(j.at("type").get<std::string>());
-            if (d.type == DisplayType::RGBW) {
-                assert(j.contains("rgbw_color"));
-                d.rgbw_color = { CRGBW::from_json(j.at("rgbw_color")) };
-            } else {
-                assert(j.contains("rgb_color"));
-                d.rgb_color = { CRGB::from_json(j.at("rgb_color")) };
-            }
+            d.render_type = RendererTypeFromString(j.at("render_type").get<std::string>());
+            d.assets_dir = assets_dir;
+            d.shader = j.at("shader").get<std::string>();
+            d.pixel_texture = j.at("pixel_texture").get<std::string>();
+            d.art_net_texture = j.at("art_net_texture").get<std::string>();
+            d.buffer_count = j.at("buffer_count").get<unsigned int>();
             return d;
         }
     };

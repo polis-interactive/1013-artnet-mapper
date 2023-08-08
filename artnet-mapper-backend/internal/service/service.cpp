@@ -17,6 +17,7 @@ namespace service {
     void Service::initialize(const service::ServiceConfig &config) {
         _asio_context = infrastructure::AsioContext::Create(config.asio_context_config);
         _art_net = infrastructure::ArtNet::Create(config.art_net_config, _asio_context->GetContext());
+        _graphics = infrastructure::Graphics::Create(config.graphics_config, shared_from_this());
     }
 
     void Service::Start() {
@@ -25,6 +26,7 @@ namespace service {
         }
         _asio_context->Start();
         _art_net->Start();
+        _graphics->Start();
         _is_started = true;
     }
 
@@ -34,6 +36,7 @@ namespace service {
         }
         _art_net->Stop();
         _asio_context->Stop();
+        _graphics->Stop();
         _is_started = false;
     }
 
