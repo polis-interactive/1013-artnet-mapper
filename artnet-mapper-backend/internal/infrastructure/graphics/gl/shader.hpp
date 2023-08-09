@@ -5,9 +5,11 @@
 #ifndef INFRASTRUCTURE_GRAPHICS_SHADER_HPP
 #define INFRASTRUCTURE_GRAPHICS_SHADER_HPP
 
+#include "../common.hpp"
+
+
 namespace infrastructure::graphics {
 
-    // requires a vertex / frag pair with the same name
     class Shader {
     public:
         // no copy assignment, no empty assignment
@@ -16,11 +18,21 @@ namespace infrastructure::graphics {
         Shader& operator= (const Shader&) = delete;
     protected:
         friend class Graphics;
-        explicit Shader(std::string shader_file_name);
+        Shader(const std::string &shader_file_name, const bool owns_vertex_shader);
+        ~Shader();
         void Setup();
+        void Setup(const Shader &shader);
+        void UseShader();
         void Teardown();
     private:
-        std::filesystem::path shader_path;
+        void setupFragmentShader();
+        void setupProgram();
+        void ensureShaderCompilation(const GLuint shader);
+        const std::string _shader_file_name;
+        const bool _owns_vertex_shader;
+        GLuint _vertex_shader = 0;
+        GLuint _fragment_shader = 0;
+        GLuint _program = 0;
         bool _is_initialized;
 
     };

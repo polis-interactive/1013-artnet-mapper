@@ -4,7 +4,7 @@ set(
 )
 
 set (
-    GL_SOURCES gl/pixel_buffer.cpp
+    GL_SOURCES gl/pixel_buffer.cpp gl/shader.cpp
 )
 
 set(
