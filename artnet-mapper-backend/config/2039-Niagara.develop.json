@@ -6,10 +6,10 @@
     "shader": "test_shader",
     "pixel_texture": "2039-Niagara.pixel.bmp",
     "artnet_texture": "2039-Niagara.artnet.png",
-    "buffer_count": 3,
     "pixel_multiplier": 4
   },
   "installation_config": {
+    "buffer_count": 3,
     "rgbw_pixels": false,
     "pixel_types": 4,
     "dimensions": {

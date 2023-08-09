@@ -90,6 +90,8 @@ namespace domain {
 
         struct Config {
 
+            unsigned int buffer_count;
+
             /* these should really be at the universe level / pixel level but w.e */
             bool rgbw_pixels = false;
             unsigned int pixel_types = 1;
@@ -109,6 +111,7 @@ namespace domain {
 
             [[nodiscard]] nlohmann::json to_json() const {
                 nlohmann::json j;
+                j["buffer_count"] = buffer_count;
                 j["rgbw_pixels"] = rgbw_pixels;
                 j["pixel_types"] = pixel_types;
                 j["dimensions"] = dimensions.to_json();
@@ -131,6 +134,7 @@ namespace domain {
 
             static Config from_json(const nlohmann::json& j) {
                 Config c;
+                c.buffer_count = j.at("buffer_count").get<unsigned int>();
                 c.rgbw_pixels = j.at("rgbw_pixels").get<bool>();
                 c.pixel_types = j.at("pixel_types").get<unsigned int>();
                 c.dimensions = { Dimensions::from_json(j.at("dimensions")) };

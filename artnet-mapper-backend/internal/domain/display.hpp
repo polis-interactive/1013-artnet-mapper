@@ -22,7 +22,6 @@ namespace domain {
         std::string shader;
         std::string pixel_texture;
         std::string artnet_texture;
-        unsigned int buffer_count;
         unsigned int pixel_multiplier = 1;
 
         [[nodiscard]] std::string RendererTypeToString() const {
@@ -39,7 +38,6 @@ namespace domain {
             j["shader"] = shader;
             j["pixel_texture"] = pixel_texture;
             j["artnet_texture"] = artnet_texture;
-            j["buffer_count"] = buffer_count;
             j["pixel_multiplier"] = pixel_multiplier;
             return j;
         }
@@ -60,7 +58,6 @@ namespace domain {
             d.shader = j.at("shader").get<std::string>();
             d.pixel_texture = j.at("pixel_texture").get<std::string>();
             d.artnet_texture = j.at("artnet_texture").get<std::string>();
-            d.buffer_count = j.at("buffer_count").get<unsigned int>();
             d.pixel_multiplier = j.at("pixel_multiplier").get<unsigned int>();
             return d;
         }

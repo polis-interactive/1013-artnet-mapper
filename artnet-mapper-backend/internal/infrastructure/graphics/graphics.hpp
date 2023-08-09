@@ -48,12 +48,13 @@ namespace infrastructure {
         void runGraphics(const std::stop_token &st);
         std::atomic_bool _is_ready = false;
 
-        domain::InstallationSummary _summary;
-        Shader _main_shader;
-        Texture _pixel_type_texture;
-        Texture _artnet_texture;
-        PixelBuffers _pbos;
-        std::unique_ptr<Renderer> _renderer;
+        domain::installation::Config _summary;
+        domain::installation::Layout _layout;
+        graphics::Shader _main_shader;
+        graphics::Texture _pixel_type_texture;
+        graphics::Texture _artnet_texture;
+        graphics::PixelBuffers _pbos;
+        std::unique_ptr<graphics::Renderer> _renderer;
 
     };
 };
