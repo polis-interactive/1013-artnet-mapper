@@ -8,37 +8,46 @@
 #include <fstream>
 #include <filesystem>
 #include <nlohmann/json.hpp>
+#include <iostream>
+
+#include "utility/files.hpp"
 
 namespace application {
 
-    enum class AppType {
-        APPLICATION
-    };
+    nlohmann::json get_config(int argc, char * argv[]) {
+        std::string project, configuration;
 
-    nlohmann::json get_config(const AppType &app_type, int argc, char * argv[]) {
-        std::string json_name = "";
-        switch (app_type) {
-            case AppType::APPLICATION:
-                json_name = "application.";
-                break;
+        for (int i = 1; i < argc; i++) {
+            std::string arg = argv[i];
+
+            if (arg == "-p" && i + 1 < argc) {
+                project = argv[++i];
+            } else if (arg == "-c" && i + 1 < argc) {
+                configuration = argv[++i];
+            } else {
+                throw std::runtime_error("application::get_config - Unknown or incomplete argument: " + arg);
+            }
         }
-        if (argc > 1) {
-            json_name += argv[1];
-        } else {
-            json_name += "default";
+
+        if (project.empty()) {
+            throw std::runtime_error("application::get_config - -p flag not set");
         }
-        json_name += ".json";
-        std::filesystem::path root_dir = ROOT_DIR;
-        auto conf_dir = root_dir / "config";
-        auto json_file_path = conf_dir / json_name;
-        if (!std::filesystem::exists(json_file_path)) {
-            throw std::runtime_error("Couldn't find json file at path: " + json_file_path.string());
+        if (configuration.empty()) {
+            std::cout << "application::get_config - -c not set, using default config" << std::endl;
+            configuration = "default";
+        }
+
+        auto config_file = project + "." + configuration + ".json";
+        std::filesystem::path config_dir = CONFIG_DIR;
+        auto config_file_path = config_dir / config_file;
+        if (utility::FileExists(config_file_path) != utility::Ternary::TRUE) {
+            throw std::runtime_error("application::get_config - config file not found: " + config_file_path.string());
         }
 
         /* load json */
-        std::ifstream config_file(json_file_path);
+        std::ifstream config_file_content(config_file_path);
         nlohmann::json config;
-        config_file >> config;
+        config_file_content >> config;
 
         return std::move(config);
     }

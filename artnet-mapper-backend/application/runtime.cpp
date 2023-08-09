@@ -16,7 +16,7 @@
 
 namespace application {
 
-    static const std::filesystem::path stop_file = "/tmp/litebrite_stopped_successfully";
+    static const std::filesystem::path stop_file = "/tmp/artnet_mapper_stopped_successfully";
 
     void RemoveSuccessFile() {
         if(std::filesystem::remove(stop_file)) {
@@ -53,6 +53,9 @@ namespace application {
         signal(SIGHUP, ignore_handler);
 
         while(!exit){
+            /* this is probably a waste, could eventually use this as a supervisor,
+             *  or delegate that to the service layer
+             */
             std::this_thread::sleep_for(1s);
         }
     }

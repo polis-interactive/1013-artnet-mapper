@@ -29,9 +29,9 @@ namespace infrastructure {
         domain::Display display;
         domain::installation::Config installation_config;
         domain::installation::Layout installation_layout;
-        static GraphicsConfig from_source(const nlohmann::json& j, const std::filesystem::path &assets_dir) {
+        static GraphicsConfig from_json(const nlohmann::json& j) {
             GraphicsConfig conf{};
-            conf.display = domain::Display::from_source(j.at("display"), assets_dir);
+            conf.display = domain::Display::from_json(j.at("display"));
             conf.installation_config = domain::installation::Config::from_json(j.at("installation_config"));
             conf.installation_layout = domain::installation::Layout::from_json(j.at("installation_layout"));
             return conf;

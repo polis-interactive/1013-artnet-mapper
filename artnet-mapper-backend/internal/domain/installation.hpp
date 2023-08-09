@@ -93,12 +93,11 @@ namespace domain {
             /* these should really be at the universe level / pixel level but w.e */
             bool rgbw_pixels = false;
             unsigned int pixel_types = 1;
-            unsigned int pixel_multiplier = 1;
 
             Dimensions dimensions;
 
             double fps = 30.0;
-            double target_fps = 25.0;
+            double threshold_fps = 25.0;
 
             std::optional<CRGB> color_correction;
             std::optional<float> gamma;
@@ -112,10 +111,9 @@ namespace domain {
                 nlohmann::json j;
                 j["rgbw_pixels"] = rgbw_pixels;
                 j["pixel_types"] = pixel_types;
-                j["pixel_multiplier"] = pixel_multiplier;
                 j["dimensions"] = dimensions.to_json();
                 j["fps"] = fps;
-                j["target_fps"] = target_fps;
+                j["threshold_fps"] = threshold_fps;
                 if (color_correction.has_value()) {
                     j["color_correction"] = color_correction.value().to_json();
                 }
@@ -135,10 +133,9 @@ namespace domain {
                 Config c;
                 c.rgbw_pixels = j.at("rgbw_pixels").get<bool>();
                 c.pixel_types = j.at("pixel_types").get<unsigned int>();
-                c.pixel_multiplier = j.at("pixel_multiplier").get<unsigned int>();
                 c.dimensions = { Dimensions::from_json(j.at("dimensions")) };
                 c.fps = j.at("fps").get<double>();
-                c.target_fps = j.at("target_fps").get<double>();
+                c.threshold_fps = j.at("threshold_fps").get<double>();
                 if (j.contains("color_correction")) {
                     c.color_correction = { CRGB::from_json(j.at("color_correction")) };
                 }
