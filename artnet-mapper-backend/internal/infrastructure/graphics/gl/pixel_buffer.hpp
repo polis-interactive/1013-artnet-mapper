@@ -45,7 +45,7 @@ namespace infrastructure::graphics {
         PixelBuffers (const PixelBuffers&) = delete;
         PixelBuffers& operator= (const PixelBuffers&) = delete;
     protected:
-        friend class Graphics;
+        friend class infrastructure::Graphics;
         explicit PixelBuffers(const domain::installation::Config &installation_config);
         void Setup();
         void Teardown();

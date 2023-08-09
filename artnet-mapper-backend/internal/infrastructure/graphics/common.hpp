@@ -38,6 +38,16 @@ namespace infrastructure {
         }
     };
 
+    // forward declaration, for the boys
+    class Graphics;
+
+    void ThrowOnGlError(const std::string &display_on_error) {
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR) {
+            throw std::runtime_error(display_on_error);
+        }
+    }
+
 }
 
 

@@ -19,7 +19,7 @@ namespace infrastructure::graphics {
             utility::FileExists(fragment_file) != utility::Ternary::TRUE
         ) {
             throw std::runtime_error(
-                "infrastructure::graphics::shader - Fragment shader not found: " + shader_file_name
+                "infrastructure::graphics::Shader - Fragment shader not found: " + shader_file_name
             );
         }
         if (!_owns_vertex_shader) {
@@ -30,7 +30,7 @@ namespace infrastructure::graphics {
                 utility::FileExists(vertex_file) != utility::Ternary::TRUE
             ) {
             throw std::runtime_error(
-                "infrastructure::graphics::shader - Vertex shader not found: " + shader_file_name
+                "infrastructure::graphics::Shader - Vertex shader not found: " + shader_file_name
             );
         }
     }
@@ -47,6 +47,9 @@ namespace infrastructure::graphics {
     }
 
     void Shader::Setup() {
+        if (_is_initialized) {
+            return;
+        }
         assert(_owns_vertex_shader);
         const std::filesystem::path asset_dir = SHADER_DIR;
         const auto vertex_file = asset_dir / (_shader_file_name + ".vert");
@@ -63,6 +66,10 @@ namespace infrastructure::graphics {
     }
 
     void Shader::Setup(const infrastructure::graphics::Shader &shader) {
+        if (_is_initialized) {
+            return;
+        }
+        assert(!_owns_vertex_shader);
         _vertex_shader = shader._vertex_shader;
         setupFragmentShader();
         setupProgram();
@@ -96,7 +103,7 @@ namespace infrastructure::graphics {
         }
     }
 
-    void Shader::UseShader() {
+    void Shader::Use() const {
         glUseProgram(_program);
     }
 
@@ -104,15 +111,16 @@ namespace infrastructure::graphics {
         if (!_is_initialized) {
             return;
         }
+
         glDetachShader(_program, _vertex_shader);
         glDetachShader(_program, _fragment_shader);
-
         if (_owns_vertex_shader) {
             glDeleteShader(_vertex_shader);
         }
         glDeleteShader(_fragment_shader);
-
         glDeleteProgram(_program);
+
+        _is_initialized = false;
     }
 
     Shader::~Shader() {

@@ -17,12 +17,12 @@ namespace infrastructure::graphics {
         Shader (const Shader&) = delete;
         Shader& operator= (const Shader&) = delete;
     protected:
-        friend class Graphics;
+        friend class infrastructure::Graphics;
         Shader(const std::string &shader_file_name, const bool owns_vertex_shader);
         ~Shader();
         void Setup();
         void Setup(const Shader &shader);
-        void UseShader();
+        void Use() const;
         void Teardown();
     private:
         void setupFragmentShader();
@@ -33,7 +33,7 @@ namespace infrastructure::graphics {
         GLuint _vertex_shader = 0;
         GLuint _fragment_shader = 0;
         GLuint _program = 0;
-        bool _is_initialized;
+        bool _is_initialized = false;
 
     };
 }
