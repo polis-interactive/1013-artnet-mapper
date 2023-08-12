@@ -20,6 +20,7 @@ namespace infrastructure::graphics {
         );
     }
 
+
     void PixelBuffers::Teardown() {
         std::unique_lock<std::mutex> lock(_spent_mutex);
         PixelBuffer *buffer = nullptr;
@@ -64,9 +65,10 @@ namespace infrastructure::graphics {
         glReadPixels(0, 0, _width, _height, GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
 
-    void PixelBuffer::MapBuffer() {
+    bool PixelBuffer::MapBuffer() {
         glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
         _mapped_ptr = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        return _mapped_ptr != nullptr;
     }
 
     uint8_t *PixelBuffer::GetMemory() {

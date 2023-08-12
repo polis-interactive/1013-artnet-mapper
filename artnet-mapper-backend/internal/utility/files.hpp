@@ -6,6 +6,8 @@
 #define UTILS_FILES_HPP
 
 #include <filesystem>
+#include <fstream>
+
 
 namespace utility {
 
@@ -42,7 +44,7 @@ namespace utility {
         }
     }
 
-    std::string LoadFileContent(const std::filesystem::path& path) {
+    inline std::string LoadFileContent(const std::filesystem::path& path) {
         std::ifstream fileStream(path);
 
         if (!fileStream.is_open()) {

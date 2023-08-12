@@ -18,6 +18,7 @@ namespace infrastructure::graphics {
         Shader& operator= (const Shader&) = delete;
     protected:
         friend class infrastructure::Graphics;
+        friend class GlfwRenderer;
         Shader(const std::string &shader_file_name, const bool owns_vertex_shader);
         ~Shader();
         void Setup();

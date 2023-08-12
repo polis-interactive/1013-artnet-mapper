@@ -19,6 +19,9 @@ namespace infrastructure::graphics {
     public:
         [[nodiscard]] uint8_t *GetMemory() final;
         [[nodiscard]] std::size_t GetSize() final;
+        void RenderBuffer() const;
+        bool MapBuffer();
+        void UnmapBuffer();
         ~PixelBuffer();
         // no copy assignment, empty assignment
         PixelBuffer() = delete;
@@ -27,9 +30,7 @@ namespace infrastructure::graphics {
     protected:
         friend class PixelBuffers;
         explicit PixelBuffer(const domain::installation::Config &installation_config);
-        void RenderBuffer() const;
-        void MapBuffer();
-        void UnmapBuffer();
+
     private:
         const GLsizei _width;
         const GLsizei _height;

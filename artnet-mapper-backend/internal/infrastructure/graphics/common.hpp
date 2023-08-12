@@ -7,6 +7,17 @@
 
 #include <string>
 
+#ifdef _GLFW_RENDERER_
+
+#define GLAD_GL_IMPLEMENTATION
+#include "glad/glad_egl.h"
+#include "glad/glad.h"
+
+#define GLFW_INCLUDE_NONE 1
+#include <GLFW/glfw3.h>
+
+#else
+
 /*
  * EGL headers.
  */
@@ -20,6 +31,9 @@
 #include <GL/glext.h>
 
 
+#endif
+
+
 #include "domain/installation.hpp"
 #include "domain/display.hpp"
 
@@ -28,20 +42,19 @@ namespace infrastructure {
     struct GraphicsConfig {
         domain::Display display;
         domain::installation::Config installation_config;
-        domain::installation::Layout installation_layout;
         static GraphicsConfig from_json(const nlohmann::json& j) {
             GraphicsConfig conf{};
             conf.display = domain::Display::from_json(j.at("display"));
             conf.installation_config = domain::installation::Config::from_json(j.at("installation_config"));
-            conf.installation_layout = domain::installation::Layout::from_json(j.at("installation_layout"));
             return conf;
         }
     };
 
     // forward declaration, for the boys
     class Graphics;
+    typedef std::shared_ptr<Graphics> GraphicsPtr;
 
-    void ThrowOnGlError(const std::string &display_on_error) {
+    inline void ThrowOnGlError(const std::string &display_on_error) {
         GLenum err = glGetError();
         if (err != GL_NO_ERROR) {
             throw std::runtime_error(display_on_error);

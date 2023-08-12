@@ -14,7 +14,7 @@ namespace service {
     struct ServiceConfig {
         infrastructure::ArtNetConfig art_net_config;
         infrastructure::AsioContextConfig asio_context_config;
-        infrastructure::Graphics graphics_config;
+        infrastructure::GraphicsConfig graphics_config;
     };
 
     class Service;

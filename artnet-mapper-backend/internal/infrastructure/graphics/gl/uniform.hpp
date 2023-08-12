@@ -11,9 +11,11 @@ namespace infrastructure::graphics {
 
     class Uniform;
     typedef std::shared_ptr<Uniform> UniformPtr;
+    typedef std::vector<UniformPtr> UniformVector;
 
     class Uniform {
     public:
+        static void AttachUniforms(UniformVector &uniforms);
         explicit Uniform (std::string name);
         // no copy assignment, no empty assignment
         Uniform() = delete;

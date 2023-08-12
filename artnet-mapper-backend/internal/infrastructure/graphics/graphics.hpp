@@ -10,8 +10,10 @@
 
 #include "./common.hpp"
 #include "./gl/shader.hpp"
-#include "./gl/texture.hpp"
+#include "./gl/image_texture.hpp"
 #include "./gl/pixel_buffer.hpp"
+#include "./gl/uniform.hpp"
+#include "./gl/full_vao.hpp"
 #include "./renderer/renderer.hpp"
 
 namespace infrastructure {
@@ -21,12 +23,10 @@ namespace infrastructure {
     };
     typedef std::shared_ptr<GraphicsManager> GraphicsManagerPtr;
 
-    class Graphics;
-    typedef std::shared_ptr<Graphics> GraphicsPtr;
 
     class Graphics: public std::enable_shared_from_this<Graphics> {
     public:
-        [[nodiscard]] static std::shared_ptr<Graphics> Create(
+        [[nodiscard]] static GraphicsPtr Create(
             const GraphicsConfig &config, GraphicsManagerPtr manager
         );
         explicit Graphics(const GraphicsConfig &config, GraphicsManagerPtr manager);
@@ -42,19 +42,41 @@ namespace infrastructure {
         std::unique_ptr<std::jthread> _graphics_thread = nullptr;
         bool _stop_running = true;
 
-        void setup();
+        GraphicsManagerPtr _manager;
+
+        bool setup();
         void teardown();
 
         void runGraphics(const std::stop_token &st);
         std::atomic_bool _is_ready = false;
 
-        domain::installation::Config _summary;
-        domain::installation::Layout _layout;
-        graphics::Shader _main_shader;
-        graphics::Texture _pixel_type_texture;
-        graphics::Texture _artnet_texture;
-        graphics::PixelBuffers _pbos;
+        void reclaimSpentPbos();
+        void postReadyPbos();
+        bool renderNextFrame(GraphicsPtr &self);
+
+        void requeuePbo(graphics::PixelBuffer *reclaim_pbo);
+
+        domain::installation::Config _config;
+        const std::chrono::duration<double> _frameTime;
+
         std::unique_ptr<graphics::Renderer> _renderer;
+
+    public:
+        // these should be protected, but that's not how inheritance works...
+
+        graphics::ImageTexture _pixel_type_texture;
+        graphics::ImageTexture _artnet_texture;
+
+        graphics::FloatUniformPtr _time = graphics::FloatUniform::Create("time", 1.0);
+        graphics::FloatUniformPtr _brightness = graphics::FloatUniform::Create("brightness", 1.0);
+
+        // need to add bool uniform for do artnet mapping
+        // that uniform should be owned by the glfw renderer
+        graphics::Shader _display_shader;
+
+        graphics::PixelBuffers _pbos;
+        std::vector<graphics::UniformPtr> _display_uniforms;
+
 
     };
 };

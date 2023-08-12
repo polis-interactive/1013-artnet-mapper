@@ -9,6 +9,8 @@
 
 #include "../common.hpp"
 
+#include "../gl/pixel_buffer.hpp"
+
 namespace infrastructure::graphics {
 
     class Renderer {
@@ -17,19 +19,21 @@ namespace infrastructure::graphics {
         Renderer() = delete;
         Renderer (const Renderer&) = delete;
         Renderer& operator= (const Renderer&) = delete;
-        virtual ~Renderer() = default;
     protected:
-        friend class Graphics;
+        friend class infrastructure::Graphics;
         static std::unique_ptr<Renderer> Create(
-            const RendererType render_type, const domain::InstallationSummary &summary
+            const domain::RendererType &render_type,
+            const domain::Dimensions &dimensions,
+            const unsigned int &pixel_multiplier
         );
-        virtual bool Setup() = 0;
+        virtual bool SetupContext() = 0;
+        virtual void Setup(GraphicsPtr &graphics) = 0;
+        virtual void Render(GraphicsPtr &graphics, PixelBuffer *pbo) = 0;
         virtual void Teardown() noexcept = 0;
-    private:
-        friend class GlfwRenderer;
-        friend class HeadlessRenderer;
-        explicit Renderer(const domain::InstallationSummary &summary);
-        const domain::InstallationSummary &_summary;
+    protected:
+        explicit Renderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier);
+        const domain::Dimensions &_dimensions;
+        const unsigned int _multiplier;
     };
 }
 

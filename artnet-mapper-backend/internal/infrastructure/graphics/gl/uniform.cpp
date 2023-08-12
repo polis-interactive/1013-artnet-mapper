@@ -8,6 +8,12 @@
 
 namespace infrastructure::graphics {
 
+    void Uniform::AttachUniforms(UniformVector &uniforms) {
+        for (auto &uniform : uniforms) {
+            uniform->Set();
+        }
+    }
+
     Uniform::Uniform(std::string name): _name(std::move(name)) {}
 
     void Uniform::Setup(const GLuint &shaderProgram) {

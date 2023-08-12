@@ -11,9 +11,11 @@ namespace infrastructure::graphics {
 
     class HeadlessRenderer: public Renderer {
     public:
-        explicit HeadlessRenderer(const domain::InstallationSummary &summary);
+        explicit HeadlessRenderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier);
     protected:
-        bool Setup() final;
+        bool SetupContext() final;
+        void Setup(GraphicsPtr &graphics) final;
+        void Render(GraphicsPtr &graphics, PixelBuffer *pbo) final;
         void Teardown() noexcept final;
     };
 
