@@ -9,6 +9,8 @@
 
 #include "utility/files.hpp"
 
+#include <iostream>
+
 namespace infrastructure::graphics {
 
     ImageTexture::ImageTexture(
@@ -42,7 +44,7 @@ namespace infrastructure::graphics {
         _data = stbi_load(_path.c_str(), &width, &height, &channels, expected_channels);
         if (_data == nullptr) {
             throw std::runtime_error("Texture::Setup - Failed to load texture: " + _path.string());
-        } else if (width != _width || height != _height || channels != expected_channels) {
+        } else if (width != _width || height != _height) {
             throw std::runtime_error("Texture::Setup - Image did not match parameters: " + _path.string());
         }
 

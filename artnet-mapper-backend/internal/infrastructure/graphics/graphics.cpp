@@ -25,11 +25,21 @@ namespace infrastructure {
             "artnet_texture", 1
         ),
         _pbos(_config),
-            _renderer(graphics::Renderer::Create(
+        _renderer(graphics::Renderer::Create(
             config.display.render_type, _config.dimensions, config.display.pixel_multiplier
         )),
-        _display_uniforms({_time, _brightness }),
+        _pixel_multiplier(graphics::IntUniform::Create(
+           "pixel_multiplier", (int) _config.pixel_types
+        )),
+        _resolution(graphics::Float2Uniform::Create(
+            "resolution", (float) _config.dimensions.width, (float) _config.dimensions.height
+        )),
+        _do_artnet_mapping(graphics::BoolUniform::Create(
+            "do_artnet_mapping", config.display.render_type == domain::RendererType::HEADLESS
+        )),
+        _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
         _frameTime(1 / _config.fps)
+
     {}
 
     Graphics::~Graphics() {
@@ -83,6 +93,7 @@ namespace infrastructure {
         _pixel_type_texture.Setup();
         _artnet_texture.Setup();
         _pbos.Setup();
+        graphics::Uniform::SetupUniforms(_display_uniforms, _display_shader._program);
         auto self(shared_from_this());
         _renderer->Setup(self);
         return true;

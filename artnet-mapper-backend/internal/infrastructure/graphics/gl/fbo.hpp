@@ -20,6 +20,7 @@ namespace infrastructure::graphics {
         ~Fbo();
         void Setup();
         void BindFbo() const;
+        void BindTextureRoot() const;
         void BindTexture(const GLuint &shader_program) const;
         void Teardown();
     private:

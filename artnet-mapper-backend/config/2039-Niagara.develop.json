@@ -3,8 +3,8 @@
   "asio_pool_size": 1,
   "display": {
     "render_type": "GLFW",
-    "shader": "test_shader",
-    "pixel_texture": "2039-Niagara.pixel.bmp",
+    "shader": "2039-Niagara",
+    "pixel_texture": "2039-Niagara.pixels.bmp",
     "artnet_texture": "2039-Niagara.artnet.png",
     "pixel_multiplier": 4
   },

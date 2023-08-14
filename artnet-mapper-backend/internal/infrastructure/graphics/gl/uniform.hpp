@@ -15,21 +15,19 @@ namespace infrastructure::graphics {
 
     class Uniform {
     public:
-        static void AttachUniforms(UniformVector &uniforms);
+        static void AttachUniforms(UniformVector &uniforms, const GLuint &shaderProgram);
+        static void SetupUniforms(UniformVector &uniforms, const GLuint &shaderProgram);
         explicit Uniform (std::string name);
         // no copy assignment, no empty assignment
         Uniform() = delete;
         Uniform (const Uniform&) = delete;
         Uniform& operator= (const Uniform&) = delete;
-    protected:
-        friend class infrastructure::Graphics;
-        virtual void Set() const = 0;
+        // these should be protected, but you know, inheritance
+        virtual void Attach(const GLuint &shaderProgram) const = 0;
         void Teardown();
-    protected:
-        friend class Shader;
         void Setup(const GLuint &shaderProgram);
     protected:
-        GLint _location = -1;
+        std::map<GLuint, GLint> _locations;
         const std::string _name;
     };
 
@@ -44,9 +42,9 @@ namespace infrastructure::graphics {
         FloatUniform() = delete;
         FloatUniform (const FloatUniform&) = delete;
         FloatUniform& operator= (const FloatUniform&) = delete;
-    protected:
-        friend class infrastructure::Graphics;
-        void Set() const final;
+
+        // these should be protected, but you know, inheritance
+        void Attach(const GLuint &shaderProgram) const final;
         void SetValue(const float &value);
     private:
         float _value = 0.0;
@@ -63,15 +61,56 @@ namespace infrastructure::graphics {
         IntUniform() = delete;
         IntUniform (const IntUniform&) = delete;
         IntUniform& operator= (const IntUniform&) = delete;
-    protected:
-        friend class infrastructure::Graphics;
-        void Set() const final;
+
+        // these should be protected, but you know, inheritance
+        void Attach(const GLuint &shaderProgram) const final;
         void SetValue(const int &value);
     private:
         int _value = 0.0;
     };
 
+    class Float2Uniform;
+    typedef std::shared_ptr<Float2Uniform> Float2UniformPtr;
 
+    class Float2Uniform : public Uniform {
+    public:
+        static Float2UniformPtr Create(
+            const std::string& name, const float &default_value_1, const float &default_value_2
+        );
+        Float2Uniform(
+            const std::string& name, const float &default_value_1, const float &default_value_2
+        );
+        // no copy assignment, no empty assignment
+        Float2Uniform() = delete;
+        Float2Uniform (const Float2Uniform&) = delete;
+        Float2Uniform& operator= (const Float2Uniform&) = delete;
+
+        // these should be protected, but you know, inheritance
+        void Attach(const GLuint &shaderProgram) const final;
+        void SetValue(const float &value_1, const float &value_2);
+    private:
+        float _value_1;
+        float _value_2;
+    };
+
+    class BoolUniform;
+    typedef std::shared_ptr<BoolUniform> BoolUniformPtr;
+
+    class BoolUniform : public Uniform {
+    public:
+        static BoolUniformPtr Create(const std::string& name, const bool &default_value);
+        BoolUniform(const std::string& name, const bool &default_value);
+        // no copy assignment, no empty assignment
+        BoolUniform() = delete;
+        BoolUniform (const BoolUniform&) = delete;
+        BoolUniform& operator= (const BoolUniform&) = delete;
+
+        // these should be protected, but you know, inheritance
+        void Attach(const GLuint &shaderProgram) const final;
+        void SetValue(const bool &value);
+    private:
+        bool _value = false;
+    };
 
 }
 

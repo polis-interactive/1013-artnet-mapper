@@ -46,7 +46,7 @@ namespace service {
     }
 
     void Service::PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) {
-        _art_net->Post(std::move(pixels));
+        // _art_net->Post(std::move(pixels));
     }
 
 }

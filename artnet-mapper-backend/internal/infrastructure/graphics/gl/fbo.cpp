@@ -50,6 +50,11 @@ namespace infrastructure::graphics {
         glUniform1i(texture_location, _texture_number);
     }
 
+    void Fbo::BindTextureRoot() const {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, _texture);
+    }
+
     void Fbo::Teardown() {
         if (!_is_initialized) {
             return;

@@ -64,14 +64,17 @@ namespace infrastructure {
     public:
         // these should be protected, but that's not how inheritance works...
 
-        graphics::ImageTexture _pixel_type_texture;
-        graphics::ImageTexture _artnet_texture;
-
         graphics::FloatUniformPtr _time = graphics::FloatUniform::Create("time", 1.0);
         graphics::FloatUniformPtr _brightness = graphics::FloatUniform::Create("brightness", 1.0);
 
-        // need to add bool uniform for do artnet mapping
-        // that uniform should be owned by the glfw renderer
+        graphics::IntUniformPtr _pixel_multiplier;
+        graphics::Float2UniformPtr _resolution;
+
+        graphics::ImageTexture _pixel_type_texture;
+
+        graphics::BoolUniformPtr _do_artnet_mapping;
+        graphics::ImageTexture _artnet_texture;
+
         graphics::Shader _display_shader;
 
         graphics::PixelBuffers _pbos;

@@ -69,6 +69,26 @@ class Generator:
         self._current_universe = universe
         self._current_pixel_index = 0
 
+    def start_next_universe(self):
+        current_controller = self._get_current_controller()
+        self._current_universe += 1
+        new_universe = Universe(
+            id=self._current_universe, pixel_width=self._get_pixel_width(),
+            start_index=self._allocated_addresses, pixel_count=0
+        )
+        self._installation_layout.universes[self._current_universe] = new_universe
+        current_controller.append(new_universe.id)
+
+    def assert_pixel_count(self, pixel_count: int):
+        if pixel_count != len(self._point_set):
+            raise RuntimeError(f"Wanted {pixel_count}; have {len(self._point_set)} pixels")
+
+    def assert_universe_count(self, universe_count: int):
+        actual_universe_count = len(self._installation_layout.universes)
+        if universe_count != actual_universe_count:
+            raise RuntimeError(f"Wanted {universe_count}; have {actual_universe_count} universes")
+
+
     def _get_max_pixel_index(self) -> int:
         return 170 if not self._installation_config.rgbw_pixels else 128
 
@@ -87,6 +107,12 @@ class Generator:
         if direction == Direction2d.SnakeDownRight:
             final_point.x += box.width - 1
             final_point.y += box.height - 1
+        elif direction == Direction2d.SnakeUpRight:
+            final_point.x += box.width - 1
+            final_point.y -= (box.height - 1)
+        elif direction == Direction2d.SnakeDownLeft:
+            final_point.x -= (box.width - 1)
+            final_point.y += box.height - 1
 
         if not (0 <= starting_point.x < self._installation_config.dimensions.width) or \
                 not (0 <= final_point.x < self._installation_config.dimensions.width) or \
@@ -103,6 +129,21 @@ class Generator:
                 line_point = Point(x=starting_x, y=starting_y)
                 line_direction = Direction1d.Down if x % 2 == 0 else Direction1d.Up
                 self._draw_line(line_point, pixel_type, line_direction, box.height)
+        elif direction == Direction2d.SnakeUpRight:
+            for x in range(box.width):
+                starting_x = starting_point.x + x
+                starting_y = starting_point.y - (0 if x % 2 == 0 else box.height - 1)
+                line_point = Point(x=starting_x, y=starting_y)
+                line_direction = Direction1d.Up if x % 2 == 0 else Direction1d.Down
+                self._draw_line(line_point, pixel_type, line_direction, box.height)
+        elif direction == Direction2d.SnakeDownLeft:
+            for x in range(box.width):
+                starting_x = starting_point.x - x
+                starting_y = starting_point.y + (0 if x % 2 == 0 else box.height - 1)
+                line_point = Point(x=starting_x, y=starting_y)
+                line_direction = Direction1d.Down if x % 2 == 0 else Direction1d.Up
+                self._draw_line(line_point, pixel_type, line_direction, box.height)
+
 
     def generate_line(self, starting_point: Point, height, pixel_type: int, direction: Direction1d):
         final_point = Point(x=starting_point.x, y=starting_point.y)
@@ -157,6 +198,11 @@ class Generator:
                 current_universe = new_universe
                 current_controller.append(current_universe.id)
 
+            if current_point.y < 0 or current_point.x < 0 or \
+                    current_point.y >= self._installation_config.dimensions.height or \
+                    current_point.x >= self._installation_config.dimensions.width:
+                print(f"Pixel out of bounds: {current_point}")
+
             # Create new pixel
             current_universe.pixel_count += 1
             self._pixel_type_bitmap.set_pixel_value(current_point, self._pixel_values[pixel_type])
@@ -164,7 +210,7 @@ class Generator:
 
             if current_point in self._point_set:
                 raise RuntimeError(f"{current_point} is already allocated")
-            self._point_set.add(current_point)
+            self._point_set.add(current_point.copy())
 
             # increment for next iter
             self._allocated_addresses += self._get_pixel_width()

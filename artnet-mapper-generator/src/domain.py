@@ -1,8 +1,16 @@
 from __future__ import annotations
+
+import dataclasses
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List
+
+
+@dataclass(kw_only=True)
+class Tracker:
+    universe_count: int
+    pixel_count: int
 
 
 @dataclass(kw_only=True)
@@ -16,6 +24,9 @@ class Point:
     def __hash__(self):
         return hash((self.x, self.y))
 
+    def copy(self) -> Point:
+        return dataclasses.replace(self)
+
 
 @dataclass(kw_only=True)
 class Box:
@@ -25,6 +36,8 @@ class Box:
 
 class Direction2d(Enum):
     SnakeDownRight = 0
+    SnakeUpRight = 1
+    SnakeDownLeft = 2
 
 
 class Direction1d(Enum):

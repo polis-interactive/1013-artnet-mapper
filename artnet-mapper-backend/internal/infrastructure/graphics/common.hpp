@@ -6,6 +6,7 @@
 #define INFRASTRUCTURE_GRAPHICS_COMMON_HPP
 
 #include <string>
+#include <iostream>
 
 #ifdef _GLFW_RENDERER_
 
@@ -29,7 +30,6 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <GL/gl.h>
 #include <GL/glext.h>
-
 
 #endif
 
@@ -57,6 +57,7 @@ namespace infrastructure {
     inline void ThrowOnGlError(const std::string &display_on_error) {
         GLenum err = glGetError();
         if (err != GL_NO_ERROR) {
+            std::cerr << "GL ERROR: " << err << std::endl;
             throw std::runtime_error(display_on_error);
         }
     }

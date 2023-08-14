@@ -10,7 +10,7 @@
 namespace infrastructure::graphics {
     GlfwRenderer::GlfwRenderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier):
         Renderer(dimensions, pixel_multiplier),
-        _mapping_shader("mapping_texture", false),
+        _mapping_shader("mapping_shader", false),
         _onscreen_buffer(dimensions, 3),
         _offscreen_buffer(dimensions, 4)
     {}
@@ -51,6 +51,7 @@ namespace infrastructure::graphics {
 
     void GlfwRenderer::Setup(infrastructure::GraphicsPtr &graphics) {
         _mapping_shader.Setup(graphics->_display_shader);
+        graphics->_resolution->Setup(_mapping_shader._program);
         _full_vao.Setup();
         _onscreen_buffer.Setup();
         _offscreen_buffer.Setup();
@@ -59,12 +60,13 @@ namespace infrastructure::graphics {
     void GlfwRenderer::Render(infrastructure::GraphicsPtr &graphics, PixelBuffer *pbo) {
         // setup
         glfwPollEvents();
+        /*
 
         // Display pass
         _onscreen_buffer.BindFbo();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         graphics->_display_shader.Use();
-        Uniform::AttachUniforms(graphics->_display_uniforms);
+        Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
         graphics->_pixel_type_texture.Bind(graphics->_display_shader._program);
         _full_vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -73,16 +75,28 @@ namespace infrastructure::graphics {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glfwSwapBuffers(_window);
 
+
         // do the mapping to pbo
         _offscreen_buffer.BindFbo();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         _mapping_shader.Use();
         _onscreen_buffer.BindTexture(_mapping_shader._program);
         graphics->_artnet_texture.Bind(_mapping_shader._program);
+        graphics->_resolution->Attach(_mapping_shader._program);
         _full_vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+         */
+        _offscreen_buffer.BindFbo();
+        _offscreen_buffer.BindTextureRoot();
+
+        glClearColor(0.0, 1.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glFlush();
 
         pbo->RenderBuffer();
+
+        ThrowOnGlError("Just started pixel read");
     }
 
     void GlfwRenderer::Teardown() noexcept {
