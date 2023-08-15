@@ -18,6 +18,7 @@ namespace service {
         _asio_context = infrastructure::AsioContext::Create(config.asio_context_config);
         _art_net = infrastructure::ArtNet::Create(config.art_net_config, _asio_context->GetContext());
         _graphics = infrastructure::Graphics::Create(config.graphics_config, shared_from_this());
+        _run_pipeline = config.run_pipeline;
     }
 
     void Service::Start() {
@@ -46,7 +47,9 @@ namespace service {
     }
 
     void Service::PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) {
-        // _art_net->Post(std::move(pixels));
+        if (_run_pipeline) {
+            _art_net->Post(std::move(pixels));
+        }
     }
 
 }

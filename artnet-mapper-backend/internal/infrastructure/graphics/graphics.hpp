@@ -42,12 +42,15 @@ namespace infrastructure {
         std::unique_ptr<std::jthread> _graphics_thread = nullptr;
         bool _stop_running = true;
 
+        const bool _render_art_net;
+
         GraphicsManagerPtr _manager;
 
         bool setup();
         void teardown();
 
         void runGraphics(const std::stop_token &st);
+        void runGraphicsArtNet(const std::stop_token &st);
         std::atomic_bool _is_ready = false;
 
         void reclaimSpentPbos();

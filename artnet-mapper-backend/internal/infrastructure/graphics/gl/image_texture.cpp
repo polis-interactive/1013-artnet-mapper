@@ -48,6 +48,7 @@ namespace infrastructure::graphics {
             throw std::runtime_error("Texture::Setup - Image did not match parameters: " + _path.string());
         }
 
+
         glGenTextures(1, &_texture);
         glBindTexture(GL_TEXTURE_2D, _texture);
 
@@ -58,10 +59,12 @@ namespace infrastructure::graphics {
 
         switch (_type) {
             case ImageTextureTypes::R8:
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, _data);
                 break;
             case ImageTextureTypes::RGB8:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, _data);
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, _data);
                 break;
         }
         ThrowOnGlError("Texture::Setup - Failed to initialize texture: " + _path.string());

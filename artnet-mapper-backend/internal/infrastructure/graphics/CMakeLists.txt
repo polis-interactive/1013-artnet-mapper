@@ -1,6 +1,6 @@
 
 set(
-    RENDER_SOURCES renderer/renderer.cpp renderer/headless_renderer.cpp
+    RENDER_SOURCES renderer/renderer.cpp renderer/headless_renderer.cpp renderer/dummy.cpp
 )
 
 set (

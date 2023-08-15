@@ -14,32 +14,32 @@ namespace infrastructure {
     }
 
     Graphics::Graphics(const GraphicsConfig &config, GraphicsManagerPtr manager):
-        _config(config.installation_config),
-        _display_shader(config.display.shader, true),
-        _pixel_type_texture(
+            _config(config.installation_config),
+            _display_shader(config.display.shader, true),
+            _pixel_type_texture(
             _config.dimensions, config.display.pixel_texture, graphics::ImageTextureTypes::R8,
-            "pixel_type_texture", 0
+            "pixel_type_texture", 1
         ),
-        _artnet_texture(
+            _artnet_texture(
             _config.dimensions, config.display.artnet_texture, graphics::ImageTextureTypes::RGB8,
-            "artnet_texture", 1
+            "artnet_texture", 2
         ),
-        _pbos(_config),
-        _renderer(graphics::Renderer::Create(
+            _pbos(_config),
+            _renderer(graphics::Renderer::Create(
             config.display.render_type, _config.dimensions, config.display.pixel_multiplier
         )),
-        _pixel_multiplier(graphics::IntUniform::Create(
+            _pixel_multiplier(graphics::IntUniform::Create(
            "pixel_multiplier", (int) _config.pixel_types
         )),
-        _resolution(graphics::Float2Uniform::Create(
+            _resolution(graphics::Float2Uniform::Create(
             "resolution", (float) _config.dimensions.width, (float) _config.dimensions.height
         )),
-        _do_artnet_mapping(graphics::BoolUniform::Create(
+            _do_artnet_mapping(graphics::BoolUniform::Create(
             "do_artnet_mapping", config.display.render_type == domain::RendererType::HEADLESS
         )),
-        _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
-        _frameTime(1 / _config.fps)
-
+            _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
+            _frameTime(1 / _config.fps),
+            _render_art_net(config.display.render_art_net)
     {}
 
     Graphics::~Graphics() {
@@ -78,7 +78,11 @@ namespace infrastructure {
             has_run = true;
             setup();
             _is_ready = true;
-            runGraphics(st);
+            if (_render_art_net) {
+                runGraphicsArtNet(st);
+            } else {
+                runGraphics(st);
+            }
             _is_ready = false;
             teardown();
         }
@@ -93,13 +97,13 @@ namespace infrastructure {
         _pixel_type_texture.Setup();
         _artnet_texture.Setup();
         _pbos.Setup();
-        graphics::Uniform::SetupUniforms(_display_uniforms, _display_shader._program);
+        // graphics::Uniform::SetupUniforms(_display_uniforms, _display_shader._program);
         auto self(shared_from_this());
         _renderer->Setup(self);
         return true;
     }
 
-    void Graphics::runGraphics(const std::stop_token &st) {
+    void Graphics::runGraphicsArtNet(const std::stop_token &st) {
         auto self(shared_from_this());
         unsigned int consecutive_failed_frames = 0;
         while (!st.stop_requested()) {
@@ -111,6 +115,23 @@ namespace infrastructure {
             } else {
                 consecutive_failed_frames = 0;
             }
+            // check frame rate, timeout
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsedTime = end - start;
+            if (elapsedTime < _frameTime)
+            {
+                std::this_thread::sleep_for(_frameTime - elapsedTime);
+            }
+            // here I need to handle threshold fps, as well as missed frames
+        }
+    }
+
+    void Graphics::runGraphics(const std::stop_token &st) {
+        auto self(shared_from_this());
+        unsigned int consecutive_failed_frames = 0;
+        while (!st.stop_requested()) {
+            auto start = std::chrono::high_resolution_clock::now();
+            _renderer->Render(self, nullptr);
             // check frame rate, timeout
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsedTime = end - start;

@@ -14,7 +14,8 @@ namespace domain {
 
     enum class RendererType {
         GLFW,
-        HEADLESS
+        HEADLESS,
+        DUMMY
     };
 
     struct Display {
@@ -23,12 +24,15 @@ namespace domain {
         std::string pixel_texture;
         std::string artnet_texture;
         unsigned int pixel_multiplier = 1;
+        bool render_art_net;
 
         [[nodiscard]] std::string RendererTypeToString() const {
             if (render_type == RendererType::GLFW) {
                 return "GLFW";
             } else if (render_type == RendererType::HEADLESS) {
                 return "HEADLESS";
+            } else if (render_type == RendererType::DUMMY) {
+                return "DUMMY";
             }
         }
 
@@ -39,6 +43,7 @@ namespace domain {
             j["pixel_texture"] = pixel_texture;
             j["artnet_texture"] = artnet_texture;
             j["pixel_multiplier"] = pixel_multiplier;
+            j["render_art_net"] = render_art_net;
             return j;
         }
 
@@ -47,6 +52,8 @@ namespace domain {
                 return RendererType::GLFW;
             } else if (render_type == "HEADLESS") {
                 return RendererType::HEADLESS;
+            } else if (render_type == "DUMMY") {
+                return RendererType::DUMMY;
             } else {
                 throw std::domain_error("Unknown domain::RenderType: " + render_type);
             }
@@ -59,6 +66,7 @@ namespace domain {
             d.pixel_texture = j.at("pixel_texture").get<std::string>();
             d.artnet_texture = j.at("artnet_texture").get<std::string>();
             d.pixel_multiplier = j.at("pixel_multiplier").get<unsigned int>();
+            d.render_art_net = j.at("render_art_net").get<bool>();
             return d;
         }
     };

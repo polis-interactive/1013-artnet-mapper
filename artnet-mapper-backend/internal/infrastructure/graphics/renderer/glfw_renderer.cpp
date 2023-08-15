@@ -21,7 +21,9 @@ namespace infrastructure::graphics {
         }
         glfwSetTime(0);
         setWindowHints();
-        _window = glfwCreateWindow(_dimensions.width, _dimensions.height, "ArtnetMapper", NULL, NULL);
+        _window = glfwCreateWindow(
+            _dimensions.width * _multiplier, _dimensions.height * _multiplier, "ArtnetMapper", NULL, NULL
+        );
         if (!_window)
         {
             std::cout << "GlfwRenderer::Setup - Failed to create GLFW window background" << std::endl;
@@ -40,10 +42,10 @@ namespace infrastructure::graphics {
         std::cout << "GlfwRenderer::Setup - Version GL: "<< glGetString(GL_VERSION) << std::endl;
         std::cout << "GlfwRenderer::Setup - Version GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
-        glViewport(0, 0, _dimensions.width, _dimensions.height);
+        glViewport(0, 0, _dimensions.width * _multiplier, _dimensions.height * _multiplier);
         glfwSwapInterval(0);
         glfwSwapBuffers(_window);
-        glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        // glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwShowWindow(_window);
 
         return true;
@@ -60,14 +62,15 @@ namespace infrastructure::graphics {
     void GlfwRenderer::Render(infrastructure::GraphicsPtr &graphics, PixelBuffer *pbo) {
         // setup
         glfwPollEvents();
-        /*
 
         // Display pass
-        _onscreen_buffer.BindFbo();
+        // _onscreen_buffer.BindFbo();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         graphics->_display_shader.Use();
-        Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
+        // Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
         graphics->_pixel_type_texture.Bind(graphics->_display_shader._program);
+        graphics->_artnet_texture.Bind(graphics->_display_shader._program);
         _full_vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -75,6 +78,9 @@ namespace infrastructure::graphics {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glfwSwapBuffers(_window);
 
+        if (pbo == nullptr) {
+            return;
+        }
 
         // do the mapping to pbo
         _offscreen_buffer.BindFbo();
@@ -86,13 +92,6 @@ namespace infrastructure::graphics {
         graphics->_resolution->Attach(_mapping_shader._program);
         _full_vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-         */
-        _offscreen_buffer.BindFbo();
-        _offscreen_buffer.BindTextureRoot();
-
-        glClearColor(0.0, 1.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glFlush();
 
         pbo->RenderBuffer();
 
@@ -118,7 +117,7 @@ namespace infrastructure::graphics {
         glfwWindowHint(GLFW_ALPHA_BITS, 8);
         glfwWindowHint(GLFW_STENCIL_BITS, 8);
         glfwWindowHint(GLFW_DEPTH_BITS, 16);
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        // glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     }
 }

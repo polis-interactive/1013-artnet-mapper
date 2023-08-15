@@ -15,6 +15,7 @@ namespace service {
         infrastructure::ArtNetConfig art_net_config;
         infrastructure::AsioContextConfig asio_context_config;
         infrastructure::GraphicsConfig graphics_config;
+        bool run_pipeline;
     };
 
     class Service;
@@ -41,6 +42,7 @@ namespace service {
         Service& operator= (const Service&) = delete;
     private:
         void initialize(const ServiceConfig &config);
+        bool _run_pipeline = true;
         std::atomic_bool _is_started = false;
         infrastructure::ArtNetPtr _art_net;
         infrastructure::AsioContextPtr _asio_context;

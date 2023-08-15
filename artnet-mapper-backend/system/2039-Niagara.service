@@ -7,7 +7,7 @@ StartLimitIntervalSec=360
 Restart=on-failure
 RestartForceExitStatus=HUP
 ExecStartPre=/bin/sleep 5
-ExecStart=/home/pi/build/1014-artnet-mapper/artnet-mapper-backend/bin/app 2039-Niagara
+ExecStart=/home/pi/build/1014-artnet-mapper/artnet-mapper-backend/bin/app -p 2039-Niagara
 
 [Install]
 WantedBy=multi-user.target

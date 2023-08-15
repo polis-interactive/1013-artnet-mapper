@@ -15,6 +15,7 @@ int main(int argc, char* argv[]) {
     service_config.art_net_config = infrastructure::ArtNetConfig::from_json(json_config);
     service_config.asio_context_config = infrastructure::AsioContextConfig::from_json(json_config);
     service_config.graphics_config = infrastructure::GraphicsConfig::from_json(json_config);
+    service_config.run_pipeline = json_config.at("run_pipeline").get<bool>();
 
     auto service = service::Service::Create(service_config);
     service->Start();

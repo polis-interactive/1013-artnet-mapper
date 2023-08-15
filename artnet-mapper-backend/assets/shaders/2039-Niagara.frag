@@ -20,6 +20,10 @@ out vec4 frag_color;
 
 void main()
 {
+    vec2 tex_uv = texture_coordinates.xy / vec2(2.0, 2.0);
+    frag_color = vec4(vec3(texture(pixel_type_texture, tex_uv).r), 1.0);
+    return;
+    /*
     vec2 uv = gl_FragCoord.xy / resolution;
     if (do_artnet_mapping) {
         uv = texture(artnet_texture, uv).rg;
@@ -46,4 +50,5 @@ void main()
     } else {
         frag_color = vec4(vec3(use_brightness), 1.0);
     }
+    */
 }

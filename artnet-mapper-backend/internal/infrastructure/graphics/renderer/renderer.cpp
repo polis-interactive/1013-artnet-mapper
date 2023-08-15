@@ -8,7 +8,9 @@
 
 #ifdef _GLFW_RENDERER_
 #include "glfw_renderer.hpp"
+#include "dummy.hpp"
 #endif
+
 
 namespace infrastructure::graphics {
     std::unique_ptr<Renderer> Renderer::Create(
@@ -23,6 +25,8 @@ namespace infrastructure::graphics {
 #endif
             case domain::RendererType::HEADLESS:
                 return std::make_unique<HeadlessRenderer>(dimensions, pixel_multiplier);
+            case domain::RendererType::DUMMY:
+                return std::make_unique<DummyRenderer>(dimensions, pixel_multiplier);
             default:
                 throw std::runtime_error("Selected graphics unavailable... ");
         }
