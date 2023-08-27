@@ -17,6 +17,7 @@
           - extra-cmake-modules
           - libdrm-dev
           - libegl1-mesa-dev
+          - libgbm-dev
           - raspberrypi-kernel-headers
     # SETUP PI STUFF
     - name: Remove default pi user
