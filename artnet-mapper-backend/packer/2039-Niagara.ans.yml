@@ -81,12 +81,17 @@
         dest: /home/pi/build/iono-pi-kernel-module
         depth: 1
     - name: Make Iono
-      make:
+      command:
+        cmd: "make -C /lib/modules/6.1.21-v8+/build/ M=/home/pi/build/iono-pi-kernel-module modules"
+        chdir: "/home/pi/build/iono-pi-kernel-module"
+    - name: Install ionopi.ko
+      command:
+        cmd: "install -m 644 -c ionopi.ko /lib/modules/6.1.21-v8+"
         chdir: /home/pi/build/iono-pi-kernel-module
-    - name: Install Iono
-      make:
+    - name: Run depmod for Iono
+      command:
+        cmd: "depmod 6.1.21-v8+"
         chdir: /home/pi/build/iono-pi-kernel-module
-        target: install
     - name: Build Iono Overlay
       command:
         cmd: "dtc -@ -Hepapr -I dts -O dtb -o ionopi.dtbo ionopi.dts"
