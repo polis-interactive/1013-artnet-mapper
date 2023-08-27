@@ -3,7 +3,7 @@
 build
 cmake-*
 
-bin/app
+artnet-mapper-backend/bin/*
 
 artnet-mapper-generator/assets/*/
 
