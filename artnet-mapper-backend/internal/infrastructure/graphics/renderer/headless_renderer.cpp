@@ -10,7 +10,7 @@ namespace infrastructure::graphics {
             const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier, const bool is_rgbw
     ):
         Renderer(dimensions, pixel_multiplier, is_rgbw),
-        _offscreen_buffer(dimensions, 1, true, 3)
+        _offscreen_buffer(dimensions, 1, false, 3)
     {}
 
     bool HeadlessRenderer::SetupContext() {
