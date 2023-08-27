@@ -81,8 +81,6 @@
         dest: /home/pi/build/iono-pi-kernel-module
         depth: 1
     - name: Make Iono
-      become: yes
-      become_user: pi
       make:
         chdir: /home/pi/build/iono-pi-kernel-module
     - name: Install Iono
