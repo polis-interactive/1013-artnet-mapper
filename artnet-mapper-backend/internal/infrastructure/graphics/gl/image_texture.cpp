@@ -15,12 +15,12 @@ namespace infrastructure::graphics {
 
     ImageTexture::ImageTexture(
         const domain::Dimensions &dimensions, const std::string &texture_file_name, const ImageTextureTypes &type,
-        const std::string &&uniform_name, const int &texture_number
+        const std::string &uniform_name, const int &texture_number
     ):
         _width((int) dimensions.width),
         _height((int) dimensions.height),
         _type(type),
-        _uniform_name(std::move(uniform_name)),
+        _uniform_name(uniform_name),
         _texture_number(texture_number)
     {
         _path = TEXTURE_DIR;
@@ -41,6 +41,7 @@ namespace infrastructure::graphics {
         auto height = _height;
         auto channels = _type == ImageTextureTypes::R8 ? 1 : 3;
         auto expected_channels = _type == ImageTextureTypes::R8 ? 1 : 3;
+        stbi_set_flip_vertically_on_load(false);
         _data = stbi_load(_path.c_str(), &width, &height, &channels, expected_channels);
         if (_data == nullptr) {
             throw std::runtime_error("Texture::Setup - Failed to load texture: " + _path.string());
@@ -72,11 +73,21 @@ namespace infrastructure::graphics {
         _is_initialized = true;
     }
 
+    void ImageTexture::SetLocation(const GLuint &shader_program) {
+        GLint texture_location = glGetUniformLocation(shader_program, _uniform_name.c_str());
+        if (texture_location == -1) {
+            std::cout << "ImageTexture::SetLocation not found in shader: " + _uniform_name << std::endl;
+        }
+        _locations.insert({ shader_program, texture_location });
+    }
+
     void ImageTexture::Bind(const GLuint &shader_program) const {
         glActiveTexture(GL_TEXTURE0 + _texture_number);
         glBindTexture(GL_TEXTURE_2D, _texture);
-        GLint texture_location = glGetUniformLocation(shader_program, _uniform_name.c_str());
-        glUniform1i(texture_location, _texture_number);
+        const auto texture_location = _locations.at(shader_program);
+        if (texture_location != -1) {
+            glUniform1i(texture_location, _texture_number);
+        }
     }
 
     void ImageTexture::Teardown() {
@@ -85,6 +96,7 @@ namespace infrastructure::graphics {
         }
         glDeleteTextures(1, &_texture);
         stbi_image_free(_data);
+        _locations.clear();
 
         _is_initialized = false;
     }

@@ -25,7 +25,7 @@ namespace infrastructure::graphics {
         // these should be protected, but you know, inheritance
         virtual void Attach(const GLuint &shaderProgram) const = 0;
         void Teardown();
-        void Setup(const GLuint &shaderProgram);
+        void Setup(const GLuint &shader_program);
     protected:
         std::map<GLuint, GLint> _locations;
         const std::string _name;

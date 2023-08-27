@@ -1,0 +1,28 @@
+{
+    "rdocCaptureSettings": 1,
+    "settings": {
+        "autoStart": false,
+        "commandLine": "-p 2039-Niagara -c develop",
+        "environment": [
+        ],
+        "executable": "/home/broosegoose/polis/1014-artnet-mapper/artnet-mapper-backend/bin/app",
+        "inject": false,
+        "numQueuedFrames": 0,
+        "options": {
+            "allowFullscreen": false,
+            "allowVSync": false,
+            "apiValidation": false,
+            "captureAllCmdLists": false,
+            "captureCallstacks": false,
+            "captureCallstacksOnlyDraws": false,
+            "debugOutputMute": true,
+            "delayForDebugger": 0,
+            "hookIntoChildren": false,
+            "refAllResources": false,
+            "softMemoryLimit": 0,
+            "verifyBufferAccess": false
+        },
+        "queuedFrameCap": 0,
+        "workingDir": "/home/broosegoose/polis/1014-artnet-mapper/artnet-mapper-backend"
+    }
+}

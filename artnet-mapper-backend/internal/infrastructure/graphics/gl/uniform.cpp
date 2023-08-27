@@ -22,12 +22,12 @@ namespace infrastructure::graphics {
 
     Uniform::Uniform(std::string name): _name(std::move(name)) {}
 
-    void Uniform::Setup(const GLuint &shaderProgram) {
-        auto location = glGetUniformLocation(shaderProgram, _name.c_str());
+    void Uniform::Setup(const GLuint &shader_program) {
+        auto location = glGetUniformLocation(shader_program, _name.c_str());
         if (location == -1) {
-            throw std::runtime_error("Uniform::Setup not found in shader: " + _name);
+            std::cout << "Uniform::Setup not found in shader: " + _name << std::endl;
         }
-        _locations.insert({ shaderProgram, location });
+        _locations.insert({ shader_program, location });
     }
 
     void Uniform::Teardown() {
@@ -48,8 +48,11 @@ namespace infrastructure::graphics {
         _value = value;
     }
 
-    void FloatUniform::Attach(const GLuint &shaderProgram) const {
-        glUniform1f(_locations.at(shaderProgram), _value);
+    void FloatUniform::Attach(const GLuint &shader_program) const {
+        const auto &uniform_location = _locations.at(shader_program);
+        if (uniform_location != -1) {
+            glUniform1f(uniform_location, _value);
+        }
     }
 
     IntUniformPtr IntUniform::Create(const std::string &name, const int &default_value) {
@@ -66,8 +69,11 @@ namespace infrastructure::graphics {
         _value = value;
     }
 
-    void IntUniform::Attach(const GLuint &shaderProgram) const {
-        glUniform1i(_locations.at(shaderProgram), _value);
+    void IntUniform::Attach(const GLuint &shader_program) const {
+        const auto &uniform_location = _locations.at(shader_program);
+        if (uniform_location != -1) {
+            glUniform1i(uniform_location, _value);
+        }
     }
 
     Float2UniformPtr Float2Uniform::Create(
@@ -85,8 +91,11 @@ namespace infrastructure::graphics {
         _value_2(default_value_2)
     {}
 
-    void Float2Uniform::Attach(const GLuint &shaderProgram) const {
-        glUniform2f(_locations.at(shaderProgram), _value_1, _value_2);
+    void Float2Uniform::Attach(const GLuint &shader_program) const {
+        const auto &uniform_location = _locations.at(shader_program);
+        if (uniform_location != -1) {
+            glUniform2f(uniform_location, _value_1, _value_2);
+        }
     }
 
     BoolUniformPtr BoolUniform::Create(const std::string &name, const bool &default_value) {
@@ -103,8 +112,11 @@ namespace infrastructure::graphics {
         _value = value;
     }
 
-    void BoolUniform::Attach(const GLuint &shaderProgram) const {
-        glUniform1i(_locations.at(shaderProgram), _value);
+    void BoolUniform::Attach(const GLuint &shader_program) const {
+        const auto &uniform_location = _locations.at(shader_program);
+        if (uniform_location != -1) {
+            glUniform1i(uniform_location, _value);
+        }
     }
 
 }

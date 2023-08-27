@@ -24,16 +24,18 @@ namespace infrastructure::graphics {
         static std::unique_ptr<Renderer> Create(
             const domain::RendererType &render_type,
             const domain::Dimensions &dimensions,
-            const unsigned int &pixel_multiplier
+            const unsigned int &pixel_multiplier,
+            const bool is_rgbw
         );
         virtual bool SetupContext() = 0;
         virtual void Setup(GraphicsPtr &graphics) = 0;
-        virtual void Render(GraphicsPtr &graphics, PixelBuffer *pbo) = 0;
+        virtual void Render(GraphicsPtr &graphics, CpuPixelBuffer *buffer) = 0;
         virtual void Teardown() noexcept = 0;
     protected:
-        explicit Renderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier);
+        explicit Renderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier, const bool is_rgbw);
         const domain::Dimensions &_dimensions;
         const unsigned int _multiplier;
+        const bool _is_rgbw;
     };
 }
 

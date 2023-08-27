@@ -39,6 +39,7 @@ include(cmake/graphics.cmake)
 set(root_dir ${CMAKE_CURRENT_LIST_DIR})
 set(internal_dir ${root_dir}/internal)
 set(third_party_dir ${root_dir}/third_party)
+set(glad_dir ${third_party_dir}/glad)
 
 add_definitions(-DROOT_DIR="${CMAKE_CURRENT_LIST_DIR}")
 add_definitions(-DCONFIG_DIR="${root_dir}/config")
@@ -48,6 +49,7 @@ add_definitions(-DTEXTURE_DIR="${root_dir}/assets/textures")
 
 include_directories(${root_dir}/internal)
 include_directories(${third_party_dir})
+include_directories(${glad_dir}/include)
 
 add_subdirectory(${internal_dir}/infrastructure)
 add_subdirectory(${internal_dir}/service)

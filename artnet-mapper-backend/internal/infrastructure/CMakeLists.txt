@@ -1,5 +1,6 @@
 
 
+add_subdirectory(controls)
 add_subdirectory(graphics)
 add_subdirectory(udp)
 

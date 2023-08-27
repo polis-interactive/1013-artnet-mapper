@@ -18,6 +18,7 @@ namespace service {
         _asio_context = infrastructure::AsioContext::Create(config.asio_context_config);
         _art_net = infrastructure::ArtNet::Create(config.art_net_config, _asio_context->GetContext());
         _graphics = infrastructure::Graphics::Create(config.graphics_config, shared_from_this());
+        _controls = infrastructure::Controls::Create(config.controls_config, shared_from_this());
         _run_pipeline = config.run_pipeline;
     }
 
@@ -28,6 +29,7 @@ namespace service {
         _asio_context->Start();
         _art_net->Start();
         _graphics->Start();
+        _controls->Start();
         _is_started = true;
     }
 
@@ -37,6 +39,7 @@ namespace service {
         }
         _art_net->Stop();
         _asio_context->Stop();
+        _controls->Stop();
         _graphics->Stop();
         _is_started = false;
     }
@@ -44,11 +47,19 @@ namespace service {
     void Service::Unset() {
         _art_net.reset();
         _asio_context.reset();
+        _controls.reset();
+        _graphics.reset();
     }
 
     void Service::PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) {
         if (_run_pipeline) {
             _art_net->Post(std::move(pixels));
+        }
+    }
+
+    void Service::PostPotentiometerUpdate(const float new_pot_read) {
+        if (_run_pipeline) {
+            _graphics->PostBrightness(new_pot_read);
         }
     }
 

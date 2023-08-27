@@ -12,5 +12,5 @@ out vec4 frag_color;
 
 void main()
 {
-    frag_color = vec4(texture(artnet_texture, texture_coordinates).rg, 0.0, 1.0);
+    frag_color = vec4(texture(pixel_type_texture, texture_coordinates).rg, 0.0, 1.0);
 }

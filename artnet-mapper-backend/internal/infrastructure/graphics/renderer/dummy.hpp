@@ -8,23 +8,29 @@
 #include "renderer.hpp"
 
 #include "../gl/shader.hpp"
+#include "../gl/full_vao.hpp"
+#include "../gl/fbo.hpp"
 
 namespace infrastructure::graphics {
 
     class DummyRenderer: public Renderer {
     public:
-        explicit DummyRenderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier);
+        explicit DummyRenderer(
+                const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier, const bool is_rgbw
+        );
     protected:
         bool SetupContext() final;
         void Setup(GraphicsPtr &graphics) final;
-        void Render(GraphicsPtr &graphics, PixelBuffer *pbo) final;
+        void Render(GraphicsPtr &graphics, CpuPixelBuffer *buffer) final;
         void Teardown() noexcept final;
     private:
         graphics::Shader _default_shader;
+        graphics::Shader _full_screen_shader;
+        graphics::Shader _mapping_shader;
         GLFWwindow *_window = nullptr;
-        GLuint _vao;
-        GLuint _vbo;
-        GLuint _ebo;
+        graphics::FullVao _full_vao;
+        graphics::Fbo _onscreen_buffer;
+        graphics::Fbo _offscreen_buffer;
     };
 
 }

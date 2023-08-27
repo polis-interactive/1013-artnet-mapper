@@ -9,8 +9,9 @@
 using namespace std::literals;
 
 namespace utility {
-    typedef std::chrono::duration<long int> Duration;
-    typedef std::chrono::duration<double> QuickDuration;
+    typedef std::chrono::duration<long int> LongDuration;
+    typedef std::chrono::duration<double> Duration;
+    typedef std::chrono::duration<float> QuickDuration;
     typedef std::chrono::high_resolution_clock Clock;
 }
 

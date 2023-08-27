@@ -16,6 +16,8 @@
 #include "./gl/full_vao.hpp"
 #include "./renderer/renderer.hpp"
 
+#include "utility/clock.hpp"
+
 namespace infrastructure {
 
     struct GraphicsManager {
@@ -53,19 +55,20 @@ namespace infrastructure {
         void runGraphicsArtNet(const std::stop_token &st);
         std::atomic_bool _is_ready = false;
 
-        void reclaimSpentPbos();
-        void postReadyPbos();
         bool renderNextFrame(GraphicsPtr &self);
-
-        void requeuePbo(graphics::PixelBuffer *reclaim_pbo);
+        void requeueBuffer(CpuPixelBuffer *reclaim_buffer);
 
         domain::installation::Config _config;
         const std::chrono::duration<double> _frameTime;
 
         std::unique_ptr<graphics::Renderer> _renderer;
 
+        std::atomic<float> _atm_brightness = 1.0;
+
     public:
         // these should be protected, but that's not how inheritance works...
+
+        void PostBrightness(const float new_brightness);
 
         graphics::FloatUniformPtr _time = graphics::FloatUniform::Create("time", 1.0);
         graphics::FloatUniformPtr _brightness = graphics::FloatUniform::Create("brightness", 1.0);
@@ -80,9 +83,10 @@ namespace infrastructure {
 
         graphics::Shader _display_shader;
 
-        graphics::PixelBuffers _pbos;
         std::vector<graphics::UniformPtr> _display_uniforms;
 
+        std::deque<CpuPixelBuffer *> _cpu_buffers;
+        std::mutex _cpu_buffers_mutex;
 
     };
 };

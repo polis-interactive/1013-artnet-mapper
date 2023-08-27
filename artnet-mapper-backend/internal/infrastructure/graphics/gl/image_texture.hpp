@@ -24,10 +24,11 @@ namespace infrastructure::graphics {
         // these should be protected, but you know, inheritance
         ImageTexture (
             const domain::Dimensions &dimensions, const std::string &texture_file_name, const ImageTextureTypes &type,
-            const std::string &&uniform_name, const int &texture_number
+            const std::string &uniform_name, const int &texture_number
         );
         ~ImageTexture();
         void Setup();
+        void SetLocation(const GLuint &shader_program);
         void Bind(const GLuint &shader_program) const;
         void Teardown();
     private:
@@ -36,6 +37,7 @@ namespace infrastructure::graphics {
         const std::string _uniform_name;
         const int _texture_number;
         const ImageTextureTypes _type;
+        std::map<GLuint, GLint> _locations;
         std::filesystem::path _path;
         unsigned char *_data = nullptr;
         GLuint _texture = 0;

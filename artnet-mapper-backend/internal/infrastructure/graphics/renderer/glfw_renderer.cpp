@@ -8,11 +8,15 @@
 #include "../graphics.hpp"
 
 namespace infrastructure::graphics {
-    GlfwRenderer::GlfwRenderer(const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier):
-        Renderer(dimensions, pixel_multiplier),
-        _mapping_shader("mapping_shader", false),
-        _onscreen_buffer(dimensions, 3),
-        _offscreen_buffer(dimensions, 4)
+    GlfwRenderer::GlfwRenderer(
+            const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier, const bool is_rgbw
+    ):
+        Renderer(dimensions, pixel_multiplier, is_rgbw),
+        _mapping_shader("mapping_shader", true),
+        _full_screen_shader("full_screen_texture", true),
+        _onscreen_buffer(dimensions, pixel_multiplier, true, 3),
+        _offscreen_buffer(dimensions, 1, true, 4),
+        _rgba_pixel_buffer(dimensions, true)
     {}
     bool GlfwRenderer::SetupContext() {
         if (!glfwInit()) {
@@ -52,23 +56,31 @@ namespace infrastructure::graphics {
     }
 
     void GlfwRenderer::Setup(infrastructure::GraphicsPtr &graphics) {
-        _mapping_shader.Setup(graphics->_display_shader);
-        graphics->_resolution->Setup(_mapping_shader._program);
-        _full_vao.Setup();
         _onscreen_buffer.Setup();
         _offscreen_buffer.Setup();
+
+        _full_screen_shader.Setup();
+        _onscreen_buffer.SetupLocation(_full_screen_shader._program);
+
+        _mapping_shader.Setup();
+        graphics->_resolution->Setup(_mapping_shader._program);
+        _onscreen_buffer.SetupLocation(_mapping_shader._program);
+        graphics->_artnet_texture.SetLocation(_mapping_shader._program);
+
+        _full_vao.Setup();
+
     }
 
-    void GlfwRenderer::Render(infrastructure::GraphicsPtr &graphics, PixelBuffer *pbo) {
+    void GlfwRenderer::Render(infrastructure::GraphicsPtr &graphics, CpuPixelBuffer *buffer) {
         // setup
         glfwPollEvents();
+        glViewport(0, 0,  _dimensions.width * _multiplier, _dimensions.height * _multiplier);
 
         // Display pass
-        // _onscreen_buffer.BindFbo();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        _onscreen_buffer.BindFbo();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         graphics->_display_shader.Use();
-        // Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
+        Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
         graphics->_pixel_type_texture.Bind(graphics->_display_shader._program);
         graphics->_artnet_texture.Bind(graphics->_display_shader._program);
         _full_vao.Bind();
@@ -76,16 +88,21 @@ namespace infrastructure::graphics {
 
         // render to the screen
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        _full_screen_shader.Use();
+        _onscreen_buffer.BindTexture(_full_screen_shader._program);
+        _full_vao.Bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(_window);
 
-        if (pbo == nullptr) {
+        if (buffer == nullptr) {
             return;
         }
 
         // do the mapping to pbo
+        glViewport(0, 0,  _dimensions.width, _dimensions.height);
         _offscreen_buffer.BindFbo();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         _mapping_shader.Use();
         _onscreen_buffer.BindTexture(_mapping_shader._program);
         graphics->_artnet_texture.Bind(_mapping_shader._program);
@@ -93,14 +110,28 @@ namespace infrastructure::graphics {
         _full_vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        pbo->RenderBuffer();
+        ThrowOnGlError("final render");
 
+        if (_is_rgbw) {
+            buffer->RenderBuffer();
+            ThrowOnGlError("Just started pixel read");
+            return;
+        }
+
+        _rgba_pixel_buffer.RenderBuffer();
         ThrowOnGlError("Just started pixel read");
+        buffer->CopyRgbaToRgb(_rgba_pixel_buffer);
+
     }
 
     void GlfwRenderer::Teardown() noexcept {
-        _mapping_shader.Teardown();
         _full_vao.Teardown();
+
+        _full_screen_shader.Teardown();
+        _mapping_shader.Teardown();
+
+        _onscreen_buffer.Teardown();
+        _offscreen_buffer.Teardown();
     }
 
     void GlfwRenderer::setWindowHints() {

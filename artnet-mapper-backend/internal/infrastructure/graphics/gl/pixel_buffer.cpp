@@ -2,7 +2,10 @@
 // Created by brucegoose on 7/5/23.
 //
 
+#include <thread>
 #include "pixel_buffer.hpp"
+
+#include "utility/clock.hpp"
 
 namespace infrastructure::graphics {
 
@@ -11,13 +14,10 @@ namespace infrastructure::graphics {
     {}
 
     void PixelBuffers::Setup() {
-        std::generate_n(
-            std::back_inserter(_ready_queue),
-            _installation_config.buffer_count,
-            [&installation_config = _installation_config]() -> PixelBuffer* {
-                return new PixelBuffer(installation_config);
-            }
-        );
+        for (int i = 0; i < _installation_config.buffer_count; i++) {
+            auto pbo = new PixelBuffer(_installation_config);
+            _ready_queue.push_back(pbo);
+        }
     }
 
 
@@ -48,8 +48,9 @@ namespace infrastructure::graphics {
     {
         glGenBuffers(1, &_pbo);
         glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
-        const auto size_multiplier = _format == GL_RGB ? 3 : 4;
-        glBufferData(GL_PIXEL_PACK_BUFFER, _width * _height * size_multiplier, 0, GL_STREAM_READ);
+        const auto pixel_size = _format == GL_RGB ? 3 : 4;
+        glBufferData(GL_PIXEL_PACK_BUFFER, _width * _height * pixel_size * 2, 0, GL_STREAM_READ);
+        ThrowOnGlError("PixelBuffer::PixelBuffer: Failed to initialize pbo");
     }
 
     PixelBuffer::~PixelBuffer() {
@@ -60,14 +61,26 @@ namespace infrastructure::graphics {
     }
 
     void PixelBuffer::RenderBuffer() const {
-        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        std::cout << _pbo << std::endl;
+        std::cout << _width << std::endl;
+        std::cout << _height << std::endl;
+        std::cout << _format << std::endl;
         glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
-        glReadPixels(0, 0, _width, _height, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glReadPixels(0, 0, _width, _height, _format, GL_UNSIGNED_BYTE, 0);
     }
 
     bool PixelBuffer::MapBuffer() {
+        GLint is_mapped = 0;
         glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
-        _mapped_ptr = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+        GLenum error = glGetError();
+        if (error != GL_NO_ERROR) {
+            // Handle or log the error
+            printf("OpenGL Error before mapping: %d\n", error);
+        }
+        glGetIntegerv(GL_BUFFER_MAPPED, &is_mapped);
+        printf("buffer is%s mapped\n", is_mapped ? "" : " not");
+        std::this_thread::sleep_for(100ms);
         return _mapped_ptr != nullptr;
     }
 

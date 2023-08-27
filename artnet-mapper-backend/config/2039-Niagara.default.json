@@ -1,12 +1,19 @@
 {
   "art_net_buffer_count": 3,
   "asio_pool_size": 1,
+  "controls_analog_min": 400,
+  "controls_analog_max": 23800,
+  "controls_analog_resolution": 20,
+  "controls_analog_hysteresis_divider": 8,
+  "controls_analog_polling_hz": 10,
+  "controls_print_values": false,
   "display": {
     "render_type": "HEADLESS",
-    "shader": "test_shader",
-    "pixel_texture": "2039-Niagara.pixel.bmp",
+    "shader": "2039-Niagara",
+    "pixel_texture": "2039-Niagara.pixels.bmp",
     "artnet_texture": "2039-Niagara.artnet.png",
-    "pixel_multiplier": 1
+    "pixel_multiplier": 1,
+    "render_art_net": true
   },
   "installation_config": {
     "buffer_count": 3,
@@ -37,59 +44,72 @@
         "id": 2,
         "pixel_width": 3,
         "start_index": 1020,
-        "pixel_count": 170
+        "pixel_count": 66
       },
       "3": {
         "id": 3,
         "pixel_width": 3,
-        "start_index": 1530,
+        "start_index": 1218,
         "pixel_count": 170
       },
       "4": {
         "id": 4,
         "pixel_width": 3,
-        "start_index": 2040,
-        "pixel_count": 170
+        "start_index": 1728,
+        "pixel_count": 50
       },
       "5": {
         "id": 5,
         "pixel_width": 3,
-        "start_index": 2550,
+        "start_index": 1878,
         "pixel_count": 170
       },
       "6": {
         "id": 6,
         "pixel_width": 3,
-        "start_index": 3060,
+        "start_index": 2388,
         "pixel_count": 170
       },
       "7": {
         "id": 7,
         "pixel_width": 3,
-        "start_index": 3570,
+        "start_index": 2898,
         "pixel_count": 170
       },
       "8": {
         "id": 8,
         "pixel_width": 3,
-        "start_index": 4080,
-        "pixel_count": 170
+        "start_index": 3408,
+        "pixel_count": 52
       },
       "9": {
         "id": 9,
         "pixel_width": 3,
-        "start_index": 4590,
+        "start_index": 3564,
         "pixel_count": 170
       },
       "10": {
         "id": 10,
         "pixel_width": 3,
-        "start_index": 5100,
-        "pixel_count": 4
+        "start_index": 4074,
+        "pixel_count": 170
+      },
+      "11": {
+        "id": 11,
+        "pixel_width": 3,
+        "start_index": 4584,
+        "pixel_count": 170
+      },
+      "12": {
+        "id": 12,
+        "pixel_width": 3,
+        "start_index": 5094,
+        "pixel_count": 6
       }
     },
     "controllers": {
-      "69.4.20.4": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      "69.4.22.3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     }
-  }
+  },
+  "run_pipeline": true
 }
