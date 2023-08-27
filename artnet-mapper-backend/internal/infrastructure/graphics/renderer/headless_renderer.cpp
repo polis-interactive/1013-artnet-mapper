@@ -10,7 +10,7 @@ namespace infrastructure::graphics {
             const domain::Dimensions &dimensions, const unsigned int &pixel_multiplier, const bool is_rgbw
     ):
         Renderer(dimensions, pixel_multiplier, is_rgbw),
-        _offscreen_buffer(dimensions, 1, false, 3)
+        _offscreen_buffer(dimensions, 1, true, 3)
     {}
 
     bool HeadlessRenderer::SetupContext() {
@@ -58,19 +58,15 @@ namespace infrastructure::graphics {
 
         glViewport(0, 0, _dimensions.width, _dimensions.height);
 
-        const char* extensions = (const char*)glGetString(GL_EXTENSIONS);
-        if (strstr(extensions, "GL_OES_vertex_array_object")) {
-            std::cout << "Should have GL_OES_vertex_array_object" << std::endl;
-        } else {
-            std::cout << "NO GL_OES_vertex_array_object D:" << std::endl;
-        }
-
         return true;
     }
 
     void HeadlessRenderer::Setup(GraphicsPtr &graphics) {
-        _full_vao.Setup();
         _offscreen_buffer.Setup();
+
+        _full_vbo.Setup();
+
+        graphics->_do_artnet_mapping->SetValue(true);
     }
 
     void HeadlessRenderer::Render(infrastructure::GraphicsPtr &graphics, CpuPixelBuffer *buffer) {
@@ -80,7 +76,7 @@ namespace infrastructure::graphics {
         Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
         graphics->_pixel_type_texture.Bind(graphics->_display_shader._program);
         graphics->_artnet_texture.Bind(graphics->_display_shader._program);
-        _full_vao.Bind();
+        _full_vbo.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         ThrowOnEGLError("renderUnable");
 
@@ -89,7 +85,7 @@ namespace infrastructure::graphics {
         ThrowOnGlError("Just started pixel read");
     }
     void HeadlessRenderer::Teardown() noexcept {
-        _full_vao.Teardown();
+        _full_vbo.Teardown();
         _offscreen_buffer.Teardown();
 
         eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

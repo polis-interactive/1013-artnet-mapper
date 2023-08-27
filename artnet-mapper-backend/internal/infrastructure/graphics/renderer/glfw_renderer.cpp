@@ -58,6 +58,7 @@ namespace infrastructure::graphics {
     void GlfwRenderer::Setup(infrastructure::GraphicsPtr &graphics) {
         _onscreen_buffer.Setup();
         _offscreen_buffer.Setup();
+        _full_vbo.Setup();
 
         _full_screen_shader.Setup();
         _onscreen_buffer.SetupLocation(_full_screen_shader._program);
@@ -67,7 +68,7 @@ namespace infrastructure::graphics {
         _onscreen_buffer.SetupLocation(_mapping_shader._program);
         graphics->_artnet_texture.SetLocation(_mapping_shader._program);
 
-        _full_vao.Setup();
+        graphics->_do_artnet_mapping->SetValue(false);
 
     }
 
@@ -83,7 +84,7 @@ namespace infrastructure::graphics {
         Uniform::AttachUniforms(graphics->_display_uniforms, graphics->_display_shader._program);
         graphics->_pixel_type_texture.Bind(graphics->_display_shader._program);
         graphics->_artnet_texture.Bind(graphics->_display_shader._program);
-        _full_vao.Bind();
+        _full_vbo.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // render to the screen
@@ -91,7 +92,7 @@ namespace infrastructure::graphics {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         _full_screen_shader.Use();
         _onscreen_buffer.BindTexture(_full_screen_shader._program);
-        _full_vao.Bind();
+        _full_vbo.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(_window);
 
@@ -107,7 +108,7 @@ namespace infrastructure::graphics {
         _onscreen_buffer.BindTexture(_mapping_shader._program);
         graphics->_artnet_texture.Bind(_mapping_shader._program);
         graphics->_resolution->Attach(_mapping_shader._program);
-        _full_vao.Bind();
+        _full_vbo.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         ThrowOnGlError("final render");
@@ -125,7 +126,7 @@ namespace infrastructure::graphics {
     }
 
     void GlfwRenderer::Teardown() noexcept {
-        _full_vao.Teardown();
+        _full_vbo.Teardown();
 
         _full_screen_shader.Teardown();
         _mapping_shader.Teardown();

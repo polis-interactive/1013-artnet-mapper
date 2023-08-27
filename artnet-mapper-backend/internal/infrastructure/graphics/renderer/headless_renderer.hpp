@@ -6,7 +6,7 @@
 #define INFRASTRUCTURE_GRAPHICS_RENDERER_HEADLESS_HPP
 
 #include "renderer.hpp"
-#include "../gl/full_vao.hpp"
+#include "../gl/full_vbo.hpp"
 #include "../gl/fbo.hpp"
 
 namespace infrastructure::graphics {
@@ -24,7 +24,7 @@ namespace infrastructure::graphics {
     private:
         EGLDisplay _display = 0;
         EGLContext _context = 0;
-        graphics::FullVao _full_vao;
+        graphics::FullVbo _full_vbo;
         graphics::Fbo _offscreen_buffer;
     };
 

@@ -13,7 +13,7 @@
 #include "./gl/image_texture.hpp"
 #include "./gl/pixel_buffer.hpp"
 #include "./gl/uniform.hpp"
-#include "./gl/full_vao.hpp"
+#include "./gl/full_vbo.hpp"
 #include "./renderer/renderer.hpp"
 
 #include "utility/clock.hpp"

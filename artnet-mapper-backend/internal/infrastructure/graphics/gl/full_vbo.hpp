@@ -9,20 +9,19 @@
 
 namespace infrastructure::graphics {
 
-    class FullVao {
+    class FullVbo {
     public:
         // no empty assignment
-        FullVao (const FullVao&) = delete;
-        FullVao& operator= (const FullVao&) = delete;
+        FullVbo (const FullVbo&) = delete;
+        FullVbo& operator= (const FullVbo&) = delete;
 
         // these should be protected, but you know, inheritance
-        FullVao () = default;
-        ~FullVao();
+        FullVbo () = default;
+        ~FullVbo();
         void Setup();
         void Bind() const;
         void Teardown();
     private:
-        GLuint _vao = 0;
         GLuint _vbo = 0;
         GLuint _ebo = 0;
         bool _is_initialized = false;
