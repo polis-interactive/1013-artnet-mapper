@@ -7,6 +7,8 @@ StartLimitIntervalSec=360
 Restart=on-failure
 RestartForceExitStatus=HUP
 ExecStartPre=/bin/sleep 5
+Environment=EGL_PLATFORM=drm
+Environment=XDG_RUNTIME_DIR=/var/run/root/1000
 ExecStart=/home/pi/build/1014-artnet-mapper/artnet-mapper-backend/bin/app -p 2039-Niagara
 
 [Install]

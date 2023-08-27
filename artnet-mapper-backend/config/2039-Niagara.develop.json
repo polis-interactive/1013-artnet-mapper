@@ -9,7 +9,7 @@
   "controls_print_values": true,
   "controls_type": "INPUT",
   "display": {
-    "render_type": "GLFW",
+    "render_type": "HEADLESS",
     "shader": "2039-Niagara",
     "pixel_texture": "2039-Niagara.pixels.bmp",
     "artnet_texture": "2039-Niagara.artnet.png",

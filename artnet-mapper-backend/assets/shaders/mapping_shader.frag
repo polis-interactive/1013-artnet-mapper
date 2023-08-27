@@ -1,5 +1,5 @@
 
-#version 310 es
+#version 300 es
 
 precision highp float;
 
