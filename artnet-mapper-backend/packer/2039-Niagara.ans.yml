@@ -97,21 +97,15 @@
         cmd: "dtc -@ -Hepapr -I dts -O dtb -o ionopi.dtbo ionopi.dts"
         chdir: /home/pi/build/iono-pi-kernel-module
     - name: Copy Iono Overlay to Boot
-      copy:
-        src: "/home/pi/build/iono-pi-kernel-module/ionopi.dtbo"
-        dest: "/boot/overlays/ionopi.dtbo"
-        mode: "0644"
+      shell:
+        cmd: cp /home/pi/build/iono-pi-kernel-module/ionopi.dtbo /boot/overlays/ionopi.dtbo
     - name: Create ionopi group
       group:
         name: ionopi
         state: present
     - name: Copy 99-ionopi.rules to /etc/udev/rules.d/
-      copy:
-        src: "/home/pi/build/iono-pi-kernel-module/99-ionopi.rules"
-        dest: "/etc/udev/rules.d/99-ionopi.rules"
-        owner: "root"
-        group: "root"
-        mode: "0644"
+      shell:
+        cmd: cp /home/pi/build/iono-pi-kernel-module/99-ionopi.rules /etc/udev/rules.d/99-ionopi.rules
     - name: Add user 'pi' to 'ionopi' group
       user:
         name: pi
