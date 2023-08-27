@@ -37,7 +37,7 @@ namespace infrastructure::graphics {
         eglBindAPI(EGL_OPENGL_API);
         ThrowOnEGLError("eglBindAPI");
 
-        const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+        const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
 
         _context = eglCreateContext(_display, config, EGL_NO_CONTEXT, contextAttribs);
         ThrowOnEGLError("eglCreateContext");
