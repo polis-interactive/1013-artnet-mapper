@@ -37,7 +37,7 @@ namespace infrastructure::graphics {
         eglBindAPI(EGL_OPENGL_API);
         ThrowOnEGLError("eglBindAPI");
 
-        const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
+        const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 
         _context = eglCreateContext(_display, config, EGL_NO_CONTEXT, contextAttribs);
         ThrowOnEGLError("eglCreateContext");
@@ -57,6 +57,13 @@ namespace infrastructure::graphics {
         std::cout << "HeadlessRenderer::Setup - Version GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 
         glViewport(0, 0, _dimensions.width, _dimensions.height);
+
+        const char* extensions = (const char*)glGetString(GL_EXTENSIONS);
+        if (strstr(extensions, "GL_OES_vertex_array_object")) {
+            std::cout << "Should have GL_OES_vertex_array_object" << std::endl;
+        } else {
+            std::cout << "NO GL_OES_vertex_array_object D:" << std::endl;
+        }
 
         return true;
     }
