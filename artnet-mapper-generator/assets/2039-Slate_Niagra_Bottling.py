@@ -405,13 +405,13 @@ def generate_f(generator: Generator, tracker: Tracker):
         Point(x=15, y=44), NiagraPixelTypes.Ghost_Pixels.value
     )
     generator.generate_line(
-        Point(x=15, y=43), 15, NiagraPixelTypes.Drop_Pixels.value, Direction1d.Up
+        Point(x=15, y=43), 17, NiagraPixelTypes.Drop_Pixels.value, Direction1d.Up
     )
     generator.generate_line(
-        Point(x=15, y=28), 4, NiagraPixelTypes.Ghost_Pixels.value, Direction1d.Up
+        Point(x=15, y=26), 4, NiagraPixelTypes.Ghost_Pixels.value, Direction1d.Up
     )
     generator.generate_line(
-        Point(x=15, y=24), 5, NiagraPixelTypes.Drop_Pixels.value, Direction1d.Up
+        Point(x=15, y=22), 3, NiagraPixelTypes.Drop_Pixels.value, Direction1d.Up
     )
     generator.generate_point(
         Point(x=15, y=19), NiagraPixelTypes.Ghost_Pixels.value
@@ -628,29 +628,33 @@ def generate():
             dimensions=Box(width=42, height=48),
             pixel_types=4
         ),
-        controllers=["69.4.20.4"]
+        controllers=["69.4.22.3"]
     )
 
     tracker = Tracker(universe_count=0, pixel_count=0)
 
+    print("Starting ABC")
     generate_abc(generator, tracker)
     generator.assert_pixel_count(tracker.pixel_count)
     generator.assert_universe_count(tracker.universe_count)
 
     generator.start_next_universe()
 
+    print("Starting E")
     generate_e(generator, tracker)
     generator.assert_pixel_count(tracker.pixel_count)
     generator.assert_universe_count(tracker.universe_count)
 
     generator.start_next_universe()
 
+    print("Starting F")
     generate_f(generator, tracker)
     generator.assert_pixel_count(tracker.pixel_count)
     generator.assert_universe_count(tracker.universe_count)
 
     generator.start_next_universe()
 
+    print("Starting DG")
     generate_dg(generator, tracker)
     generator.assert_pixel_count(tracker.pixel_count)
     generator.assert_universe_count(tracker.universe_count)
