@@ -43,4 +43,4 @@ class ArtNetBitmap:
         write_x = pixel_index % self._width
         write_y = pixel_index // self._width
         self._data[write_y, write_x, 0] = min(math.ceil(p.x / (self._width - 1) * 255), 255)
-        self._data[write_y, write_x, 1] = min(math.ceil(p.y / (self._height - 1) * 255), 255)
+        self._data[write_y, write_x, 1] = min(math.ceil(p.y / (self._height) * 255), 255)

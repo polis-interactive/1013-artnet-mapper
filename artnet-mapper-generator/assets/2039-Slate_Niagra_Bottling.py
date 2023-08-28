@@ -348,10 +348,10 @@ def generate_f(generator: Generator, tracker: Tracker):
 
     # line 3, n ghost n, down
     generator.generate_line(
-        Point(x=12, y=18), 16, NiagraPixelTypes.N_Pixels.value, Direction1d.Down
+        Point(x=12, y=18), 15, NiagraPixelTypes.N_Pixels.value, Direction1d.Down
     )
     generator.generate_line(
-        Point(x=12, y=34), 7, NiagraPixelTypes.Ghost_Pixels.value, Direction1d.Down
+        Point(x=12, y=33), 8, NiagraPixelTypes.Ghost_Pixels.value, Direction1d.Down
     )
     generator.generate_line(
         Point(x=12, y=41), 4, NiagraPixelTypes.N_Pixels.value, Direction1d.Down

@@ -9,7 +9,7 @@
   "controls_print_values": true,
   "controls_type": "INPUT",
   "display": {
-    "render_type": "GLFW_HEADLESS",
+    "render_type": "GLFW",
     "shader": "2039-Niagara",
     "pixel_texture": "2039-Niagara.pixels.bmp",
     "artnet_texture": "2039-Niagara.artnet.png",
@@ -24,7 +24,7 @@
       "width": 42,
       "height": 48
     },
-    "fps": 0.5,
+    "fps": 30.0,
     "threshold_fps": 25.0
   },
   "installation_layout": {

@@ -52,6 +52,10 @@ namespace infrastructure::graphics {
 
         glGenTextures(1, &_texture);
         glBindTexture(GL_TEXTURE_2D, _texture);
+        GLint texture_param = GL_NEAREST;
+        if (_uniform_name == "pixel_type_texture") {
+            texture_param = GL_LINEAR;
+        }
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
