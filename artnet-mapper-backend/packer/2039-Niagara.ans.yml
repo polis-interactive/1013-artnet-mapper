@@ -19,6 +19,11 @@
           - libegl1-mesa-dev
           - libgbm-dev
           - raspberrypi-kernel-headers
+          - libxrandr-dev
+          - libxinerama-dev
+          - libxcursor-dev
+          - libxi-dev
+          - xvfb
     # SETUP PI STUFF
     - name: Remove default pi user
       ansible.builtin.user:
@@ -112,6 +117,37 @@
         name: pi
         groups: ionopi
         append: yes
+    # GLFW
+    - name: Download GLFW
+      become: yes
+      become_user: pi
+      git:
+        repo: https://github.com/glfw/glfw
+        dest: /home/pi/build/glfw
+    - name: Create GLFW build dir
+      become: yes
+      become_user: pi
+      file:
+        path: /home/pi/build/glfw/build
+        state: directory
+        mode: '0755'
+    - name: Setup GLFW
+      become: yes
+      become_user: pi
+      shell:
+        chdir: /home/pi/build/glfw/build
+        cmd: cmake -DGLFW_BUILD_WAYLAND=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_X11=ON ..
+    - name: Make GLFW
+      become: yes
+      become_user: pi
+      make:
+        chdir: /home/pi/build/glfw/build
+        params:
+          NUM_THREADS: 4
+    - name: Install GLFW
+      make:
+        chdir: /home/pi/build/glfw/build
+        target: install
     # BOOST
     - name: Download Boost
       become: yes

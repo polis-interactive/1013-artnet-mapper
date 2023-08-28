@@ -14,6 +14,7 @@ namespace domain {
 
     enum class RendererType {
         GLFW,
+        GLFW_HEADLESS,
         HEADLESS,
         DUMMY
     };
@@ -33,6 +34,8 @@ namespace domain {
                 return "HEADLESS";
             } else if (render_type == RendererType::DUMMY) {
                 return "DUMMY";
+            } else if (render_type == RendererType::GLFW_HEADLESS) {
+                return "GLFW_HEADLESS";
             }
         }
 
@@ -54,6 +57,8 @@ namespace domain {
                 return RendererType::HEADLESS;
             } else if (render_type == "DUMMY") {
                 return RendererType::DUMMY;
+            } else if (render_type == "GLFW_HEADLESS") {
+                return RendererType::GLFW_HEADLESS;
             } else {
                 throw std::domain_error("Unknown domain::RenderType: " + render_type);
             }

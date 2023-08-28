@@ -9,6 +9,7 @@
 #ifdef _GLFW_RENDERER_
 #include "glfw_renderer.hpp"
 #include "dummy.hpp"
+#include "glfw_headless_renderer.hpp"
 #endif
 
 
@@ -25,6 +26,8 @@ namespace infrastructure::graphics {
                 return std::make_unique<GlfwRenderer>(dimensions, pixel_multiplier, is_rgbw);
             case domain::RendererType::DUMMY:
                 return std::make_unique<DummyRenderer>(dimensions, pixel_multiplier, is_rgbw);
+            case domain::RendererType::GLFW_HEADLESS:
+                return std::make_unique<GlfwHeadlessRenderer>(dimensions, pixel_multiplier, is_rgbw);
 #endif
             case domain::RendererType::HEADLESS:
                 return std::make_unique<HeadlessRenderer>(dimensions, pixel_multiplier, is_rgbw);

@@ -208,31 +208,7 @@ namespace infrastructure {
     }
 
     void CpuPixelBuffer::RenderBuffer() const {
-        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        switch(status) {
-            case GL_FRAMEBUFFER_COMPLETE:
-                // Everything's good.
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                std::cerr << "Framebuffer error: Incomplete attachment." << std::endl;
-                break;
-            case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                std::cerr << "Framebuffer error: Missing attachment." << std::endl;
-                break;
-                // ... handle other cases as needed
-            default:
-                std::cerr << "Unknown framebuffer error." << std::endl;
-        }
-        GLenum error = glGetError();
-        if(error != GL_NO_ERROR) {
-            std::cout << "THERE IS SOME ERROR" << std::endl;
-        } else {
-            std::cout << "There is no error?" << std::endl;
-        }
-
-        std::cout << "and this will..." << std::endl;
         glReadPixels(0, 0, _width, _height, _format, GL_UNSIGNED_BYTE, (void *) _pixels.data());
-        std::cout << "yoooooo..." << std::endl;
     }
 
     void CpuPixelBuffer::CopyRgbaToRgb(infrastructure::CpuPixelBuffer &rgba_buffer) {
