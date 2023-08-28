@@ -223,8 +223,12 @@ namespace infrastructure {
             default:
                 std::cerr << "Unknown framebuffer error." << std::endl;
         }
-        std::cout << "Welp, we got here" << std::endl;
-        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        GLenum error = glGetError();
+        if(error != GL_NO_ERROR) {
+            std::cout << "THERE IS SOME ERROR" << std::endl;
+        } else {
+            std::cout << "There is no error?" << std::endl;
+        }
 
         std::cout << "and this will..." << std::endl;
         glReadPixels(0, 0, _width, _height, _format, GL_UNSIGNED_BYTE, (void *) _pixels.data());
