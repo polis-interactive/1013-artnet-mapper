@@ -66,6 +66,10 @@ vec4 drawNPixels(vec2 uv) {
 
 void main()
 {
+    if (brightness < 0.0001) {
+        frag_color = vec4(0.0);
+        return;
+    }
     vec2 tex_uv = texture_coordinates;
     tex_uv = (floor(vec2(tex_uv.x * resolution.x, tex_uv.y * resolution.y)) + 0.5) / resolution;
     if (do_artnet_mapping) {
@@ -84,7 +88,8 @@ void main()
         frag_color = drawNPixels(tex_uv);
     } else {
         // drop pixels
-        frag_color = vec4(vec3(0.45), 1.0);
+
+        frag_color = vec4(vec3(mix(0.1, 0.45, brightness)), 1.0);
         /*
         float barPosition = mod((time + 123.89123) * 0.05, 1.0);
         if (tex_uv.y > barPosition - 0.075 && tex_uv.y < barPosition + 0.075) {
