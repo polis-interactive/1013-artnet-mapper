@@ -1,12 +1,12 @@
 {
   "art_net_buffer_count": 3,
   "asio_pool_size": 1,
-  "controls_analog_min": 400,
-  "controls_analog_max": 23800,
+  "controls_analog_min": 0,
+  "controls_analog_max": 23318,
   "controls_analog_resolution": 20,
   "controls_analog_hysteresis_divider": 8,
-  "controls_analog_polling_hz": 1,
-  "controls_print_values": true,
+  "controls_analog_polling_hz": 10,
+  "controls_print_values": false,
   "controls_type": "IONO",
   "display": {
     "render_type": "GLFW_HEADLESS",
