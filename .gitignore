@@ -10,3 +10,7 @@ artnet-mapper-generator/assets/*/
 __pycache__
 
 *.img
+
+*.key
+*.crt
+*.client

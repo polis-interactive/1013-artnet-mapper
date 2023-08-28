@@ -24,6 +24,7 @@
           - libxcursor-dev
           - libxi-dev
           - xvfb
+          - openvpn
     # SETUP PI STUFF
     - name: Remove default pi user
       ansible.builtin.user:
@@ -216,6 +217,9 @@
     - name: Copy boot config
       shell:
         cmd: cp /home/pi/build/1014-artnet-mapper/artnet-mapper-backend/system/2039-Niagara.boot_config.txt /boot/config.txt
+    - name: Copy Cron Reboot
+      shell:
+        cmd: cp /home/pi/build/1014-artnet-mapper/artnet-mapper-backend/system/cron-reboot /etc/cron.d/reboot
     # MANAGEMENT
     - name: Create ssh dir
       become: yes
@@ -227,3 +231,4 @@
     - name: Copy authorized server key
       shell:
         cmd: cp /home/pi/build/1014-artnet-mapper/artnet-mapper-backend/management/authorized_keys.client /home/pi/.ssh/authorized_keys
+    # TODO: COPY OPENVPN CONFIG, ENABLE OPENVPN SERVICE
