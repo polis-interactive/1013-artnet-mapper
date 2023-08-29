@@ -41,6 +41,7 @@ namespace infrastructure {
         )),
             _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
             _frame_time(1 / _config.fps),
+            _frame_time_low_res(1 / _config.fps),
             _render_art_net(config.display.render_art_net),
             _frame_duration_threshold(1 / _config.threshold_fps),
             _rolling_frames_length(_config.rolling_frames),
@@ -126,22 +127,24 @@ namespace infrastructure {
         auto self(shared_from_this());
         auto run_start = utility::Clock::now();
         auto last_frame = std::make_shared<CpuPixelBuffer>(_config.dimensions, _config.rgbw_pixels);
+        unsigned int frame_count = 0;
         while (!st.stop_requested()) {
             auto frame_start = utility::Clock::now();
-            auto frame_time = std::chrono::duration<float, std::chrono::seconds::period>(frame_start - run_start);
-            _time->SetValue(frame_time.count());
+            auto frame_time = _frame_time_low_res.count() * frame_count;
+            _time->SetValue(frame_time);
             _brightness->SetValue(_atm_brightness.load());
             if (!renderNextFrame(self)) {
                 _frames_success.push_back(false);
             } else {
                 _frames_success.push_back(true);
             }
+            frame_count += 1;
             // check frame rate, timeout
             auto frame_end = std::chrono::high_resolution_clock::now();
             utility::Clock ::duration elapsed_frame = frame_end - frame_start;
             if (elapsed_frame < _frame_time)
             {
-                std::this_thread::sleep_for(_frame_time - elapsed_frame);
+                std::this_thread::sleep_for((_frame_time - elapsed_frame));
             }
             _frames_duration.emplace_back(elapsed_frame);
             if (_frames_duration.size() > _rolling_frames_length) {

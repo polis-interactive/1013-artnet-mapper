@@ -61,6 +61,7 @@ namespace infrastructure {
 
         domain::installation::Config _config;
         const utility::Duration _frame_time;
+        const utility::QuickDuration _frame_time_low_res;
 
         std::unique_ptr<graphics::Renderer> _renderer;
 
