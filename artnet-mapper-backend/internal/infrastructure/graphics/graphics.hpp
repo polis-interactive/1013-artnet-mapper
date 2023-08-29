@@ -22,6 +22,7 @@ namespace infrastructure {
 
     struct GraphicsManager {
         virtual void PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) = 0;
+        virtual void RequestReboot() = 0;
     };
     typedef std::shared_ptr<GraphicsManager> GraphicsManagerPtr;
 
@@ -59,11 +60,21 @@ namespace infrastructure {
         void requeueBuffer(CpuPixelBuffer *reclaim_buffer);
 
         domain::installation::Config _config;
-        const std::chrono::duration<double> _frameTime;
+        const utility::Duration _frame_time;
 
         std::unique_ptr<graphics::Renderer> _renderer;
 
         std::atomic<float> _atm_brightness = 1.0;
+
+        std::deque<CpuPixelBuffer *> _cpu_buffers;
+        std::mutex _cpu_buffers_mutex;
+
+        const unsigned int _rolling_frames_length;
+        const double _rolling_frames_divisor;
+        std::deque<bool> _frames_success;
+        const double _frames_success_threshold;
+        std::deque<utility::Duration> _frames_duration;
+        const utility::Duration _frame_duration_threshold;
 
     public:
         // these should be protected, but that's not how inheritance works...
@@ -84,9 +95,6 @@ namespace infrastructure {
         graphics::Shader _display_shader;
 
         std::vector<graphics::UniformPtr> _display_uniforms;
-
-        std::deque<CpuPixelBuffer *> _cpu_buffers;
-        std::mutex _cpu_buffers_mutex;
 
     };
 };

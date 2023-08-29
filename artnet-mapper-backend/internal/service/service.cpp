@@ -2,6 +2,8 @@
 // Created by broosegoose on 7/23/23.
 //
 
+#include <cstdlib>
+
 #include "service.hpp"
 
 namespace service {
@@ -37,10 +39,12 @@ namespace service {
         if (!_is_started) {
             return;
         }
-        _art_net->Stop();
-        _asio_context->Stop();
         _controls->Stop();
         _graphics->Stop();
+        // let it ship out last frame
+        std::this_thread::sleep_for(100ms);
+        _art_net->Stop();
+        _asio_context->Stop();
         _is_started = false;
     }
 
@@ -55,6 +59,15 @@ namespace service {
         if (_run_pipeline) {
             _art_net->Post(std::move(pixels));
         }
+    }
+
+    void Service::RequestReboot() {
+        // should turn off iono led
+        _controls->Stop();
+        // wait for last frame to ship out
+        std::this_thread::sleep_for(500ms);
+        // do the reboot
+        std::system("/sbin/shutdown -r now");
     }
 
     void Service::PostPotentiometerUpdate(const float new_pot_read) {

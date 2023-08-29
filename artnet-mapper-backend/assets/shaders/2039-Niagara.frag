@@ -39,7 +39,7 @@ float pcurve( float x, float a, float b ){
 vec4 drawNPixels(vec2 uv) {
     float t1 = time * 0.125;
     uv.y = uv.y * 2.1;
-    uv.x = uv.x * 0.7 + time * 0.015;
+    uv.x = uv.x * 0.7;
     vec2 p = mod(uv*TAU, TAU)-250.0;
     vec2 i = vec2(p);
     float c = 1.0;

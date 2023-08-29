@@ -99,8 +99,9 @@ namespace domain {
             Dimensions dimensions;
 
             double fps = 30.0;
-            double threshold_fps = 25.0;
-            unsigned int fps_rolling = 100;
+            double threshold_fps = 24.0;
+            double threshold_dropped_frames = 0.1;
+            unsigned int rolling_frames = 100;
 
             std::optional<CRGB> color_correction;
             std::optional<float> gamma;
@@ -118,7 +119,8 @@ namespace domain {
                 j["dimensions"] = dimensions.to_json();
                 j["fps"] = fps;
                 j["threshold_fps"] = threshold_fps;
-                j["fps_rolling"] = fps_rolling;
+                j["threshold_dropped_frames"] = threshold_dropped_frames;
+                j["rolling_frames"] = rolling_frames;
                 if (color_correction.has_value()) {
                     j["color_correction"] = color_correction.value().to_json();
                 }
@@ -142,7 +144,8 @@ namespace domain {
                 c.dimensions = { Dimensions::from_json(j.at("dimensions")) };
                 c.fps = j.at("fps").get<double>();
                 c.threshold_fps = j.at("threshold_fps").get<double>();
-                c.fps_rolling = j.at("fps_rolling").get<unsigned int>();
+                c.threshold_dropped_frames = j.at("threshold_dropped_frames").get<double>();
+                c.rolling_frames = j.at("rolling_frames").get<unsigned int>();
                 if (j.contains("color_correction")) {
                     c.color_correction = { CRGB::from_json(j.at("color_correction")) };
                 }

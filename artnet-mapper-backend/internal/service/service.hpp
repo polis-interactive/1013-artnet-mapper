@@ -38,6 +38,7 @@ namespace service {
         /* Manager Members */
         // graphics
         void PostGraphicsUpdate(utility::SizedBufferPtr &&pixels) final;
+        void RequestReboot() final;
         // controls
         void PostPotentiometerUpdate(const float new_pot_read) final;
 

@@ -3,6 +3,8 @@
 //
 
 #include <iostream>
+#include <algorithm>
+#include <numeric>
 
 #include "graphics.hpp"
 
@@ -14,33 +16,37 @@ namespace infrastructure {
     }
 
     Graphics::Graphics(const GraphicsConfig &config, GraphicsManagerPtr manager):
-        _config(config.installation_config),
-        _display_shader(config.display.shader, true),
-        _pixel_type_texture(
+            _config(config.installation_config),
+            _display_shader(config.display.shader, true),
+            _pixel_type_texture(
             _config.dimensions, config.display.pixel_texture, graphics::ImageTextureTypes::R8,
             "pixel_type_texture", 1
         ),
-        _artnet_texture(
+            _artnet_texture(
             _config.dimensions, config.display.artnet_texture, graphics::ImageTextureTypes::RGB8,
             "artnet_texture", 2
         ),
-        _renderer(graphics::Renderer::Create(
+            _renderer(graphics::Renderer::Create(
             config.display.render_type, _config.dimensions, config.display.pixel_multiplier,
             config.installation_config.rgbw_pixels
         )),
-        _pixel_multiplier(graphics::IntUniform::Create(
+            _pixel_multiplier(graphics::IntUniform::Create(
            "pixel_multiplier", (int) _config.pixel_types
         )),
-        _resolution(graphics::Float2Uniform::Create(
+            _resolution(graphics::Float2Uniform::Create(
             "resolution", (float) _config.dimensions.width, (float) _config.dimensions.height
         )),
-        _do_artnet_mapping(graphics::BoolUniform::Create(
+            _do_artnet_mapping(graphics::BoolUniform::Create(
             "do_artnet_mapping", config.display.render_type == domain::RendererType::HEADLESS
         )),
-        _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
-        _frameTime(1 / _config.fps),
-        _render_art_net(config.display.render_art_net),
-        _manager(std::move(manager))
+            _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
+            _frame_time(1 / _config.fps),
+            _render_art_net(config.display.render_art_net),
+            _frame_duration_threshold(1 / _config.threshold_fps),
+            _rolling_frames_length(_config.rolling_frames),
+            _rolling_frames_divisor(_config.rolling_frames),
+            _frames_success_threshold(1.0 - _config.threshold_dropped_frames),
+            _manager(std::move(manager))
     {
         for (int i = 0; i < _config.buffer_count; i++) {
             auto buffer = new CpuPixelBuffer(_config.dimensions, _config.rgbw_pixels);
@@ -118,27 +124,44 @@ namespace infrastructure {
 
     void Graphics::runGraphicsArtNet(const std::stop_token &st) {
         auto self(shared_from_this());
-        unsigned int consecutive_failed_frames = 0;
         auto run_start = utility::Clock::now();
+        auto last_frame = std::make_shared<CpuPixelBuffer>(_config.dimensions, _config.rgbw_pixels);
         while (!st.stop_requested()) {
             auto frame_start = utility::Clock::now();
             auto frame_time = std::chrono::duration<float, std::chrono::seconds::period>(frame_start - run_start);
             _time->SetValue(frame_time.count());
             _brightness->SetValue(_atm_brightness.load());
             if (!renderNextFrame(self)) {
-                consecutive_failed_frames++;
+                _frames_success.push_back(true);
             } else {
-                consecutive_failed_frames = 0;
+                _frames_success.push_back(false);
             }
             // check frame rate, timeout
             auto frame_end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsedFrame = frame_end - frame_start;
-            if (elapsedFrame < _frameTime)
+            utility::Clock ::duration elapsed_frame = frame_end - frame_start;
+            if (elapsed_frame < _frame_time)
             {
-                std::this_thread::sleep_for(_frameTime - elapsedFrame);
+                std::this_thread::sleep_for(_frame_time - elapsed_frame);
             }
-            // here I need to handle threshold fps, as well as missed frames
+            _frames_duration.emplace_back(elapsed_frame);
+            if (_frames_duration.size() > _rolling_frames_length) {
+                _frames_success.pop_front();
+                auto average_frame_success = static_cast<double>(std::count(
+                    _frames_success.begin(), _frames_success.end(), true
+                )) / _rolling_frames_divisor;
+                _frames_duration.pop_front();
+                auto average_frame_duration = std::accumulate(
+                    _frames_duration.begin(), _frames_duration.end(), utility::Duration(0.0)
+                ) / _rolling_frames_divisor;
+                if (
+                    average_frame_success < _frames_success_threshold ||
+                    average_frame_duration < _frame_duration_threshold
+                ) {
+                    break;
+                }
+            }
         }
+        _manager->PostGraphicsUpdate(std::move(last_frame));
     }
 
     void Graphics::runGraphics(const std::stop_token &st) {
@@ -150,9 +173,9 @@ namespace infrastructure {
             // check frame rate, timeout
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsedTime = end - start;
-            if (elapsedTime < _frameTime)
+            if (elapsedTime < _frame_time)
             {
-                std::this_thread::sleep_for(_frameTime - elapsedTime);
+                std::this_thread::sleep_for(_frame_time - elapsedTime);
             }
             // here I need to handle threshold fps, as well as missed frames
         }
