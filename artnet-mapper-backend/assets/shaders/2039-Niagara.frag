@@ -37,14 +37,14 @@ float pcurve( float x, float a, float b ){
 
 
 vec4 drawNPixels(vec2 uv) {
-    float t1 = time * 0.1;
+    float t1 = time * 0.125;
     uv.y = uv.y * 2.1;
-    uv.x = uv.x * 0.7 + time * 0.04 ;
+    uv.x = uv.x * 0.7 + time * 0.015;
     vec2 p = mod(uv*TAU, TAU)-250.0;
     vec2 i = vec2(p);
     float c = 1.0;
     float inten = .005;
-    float contrast = 0.5;
+    float contrast = 1.5;
     float gamma = 4.0;
 
     for (int n = 0; n < MAX_ITER; n++)
@@ -56,9 +56,10 @@ vec4 drawNPixels(vec2 uv) {
     c /= float(MAX_ITER);
     c = 1.17-pow(c, 1.4);
     float value = pow(abs(c), 8.0);
-    value += brightness;
+    value += 0.4;
     value = mix(0.5, value, contrast);
-    vec3 color = vec3(0.0, value * 0.6, value);
+    float mult = mix(0.4, 0.8, brightness);
+    vec3 color = vec3(value * mult);
 
     return vec4(pow(color, vec3(gamma)), 1.0);
 
@@ -89,7 +90,7 @@ void main()
     } else {
         // drop pixels
 
-        frag_color = vec4(vec3(mix(0.1, 0.45, brightness)), 1.0);
+        frag_color = vec4(vec3(mix(0.1, 0.3, brightness)), 1.0);
         /*
         float barPosition = mod((time + 123.89123) * 0.05, 1.0);
         if (tex_uv.y > barPosition - 0.075 && tex_uv.y < barPosition + 0.075) {
