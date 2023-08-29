@@ -25,7 +25,7 @@
       "height": 48
     },
     "fps": 30.0,
-    "threshold_fps": 24.0,
+    "threshold_fps": 50.0,
     "threshold_dropped_frames": 0.1,
     "rolling_frames": 100
   },

@@ -25,8 +25,9 @@
       "height": 48
     },
     "fps": 30.0,
-    "threshold_fps": 25.0,
-    "fps_rolling": 100
+    "threshold_fps": 24.0,
+    "threshold_dropped_frames": 0.1,
+    "rolling_frames": 100
   },
   "installation_layout": {
     "universes": {
