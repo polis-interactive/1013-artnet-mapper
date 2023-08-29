@@ -16,7 +16,8 @@ int main(int argc, char* argv[]) {
     service_config.asio_context_config = infrastructure::AsioContextConfig::from_json(json_config);
     service_config.graphics_config = infrastructure::GraphicsConfig::from_json(json_config);
     service_config.controls_config = infrastructure::ControlsConfig::from_json(json_config);
-    service_config.run_pipeline = json_config.at("run_pipeline").get<bool>();
+    service_config.service_run_pipeline = json_config.at("service_run_pipeline").get<bool>();
+    service_config.service_allow_reset = json_config.at("service_allow_reset").get<bool>();
 
     auto service = service::Service::Create(service_config);
     service->Start();

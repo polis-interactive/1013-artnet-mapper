@@ -114,5 +114,6 @@
       "69.4.22.3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     }
   },
-  "run_pipeline": true
+  "service_run_pipeline": true,
+  "service_allow_reset": true
 }

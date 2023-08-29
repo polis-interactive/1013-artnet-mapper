@@ -132,9 +132,9 @@ namespace infrastructure {
             _time->SetValue(frame_time.count());
             _brightness->SetValue(_atm_brightness.load());
             if (!renderNextFrame(self)) {
-                _frames_success.push_back(true);
-            } else {
                 _frames_success.push_back(false);
+            } else {
+                _frames_success.push_back(true);
             }
             // check frame rate, timeout
             auto frame_end = std::chrono::high_resolution_clock::now();
@@ -146,22 +146,25 @@ namespace infrastructure {
             _frames_duration.emplace_back(elapsed_frame);
             if (_frames_duration.size() > _rolling_frames_length) {
                 _frames_success.pop_front();
-                auto average_frame_success = static_cast<double>(std::count(
+                const auto average_frame_success = std::count(
                     _frames_success.begin(), _frames_success.end(), true
-                )) / _rolling_frames_divisor;
+                ) / _rolling_frames_length;
                 _frames_duration.pop_front();
-                auto average_frame_duration = std::accumulate(
+                const auto average_frame_duration = std::accumulate(
                     _frames_duration.begin(), _frames_duration.end(), utility::Duration(0.0)
                 ) / _rolling_frames_divisor;
                 if (
                     average_frame_success < _frames_success_threshold ||
-                    average_frame_duration < _frame_duration_threshold
+                    average_frame_duration > _frame_duration_threshold
                 ) {
-                    break;
+                    _manager->PostGraphicsUpdate(std::move(last_frame));
+                    _manager->RequestReboot();
+                    while (!st.stop_requested()) {
+                        std::this_thread::sleep_for(100ms); // wait to die
+                    }
                 }
             }
         }
-        _manager->PostGraphicsUpdate(std::move(last_frame));
     }
 
     void Graphics::runGraphics(const std::stop_token &st) {

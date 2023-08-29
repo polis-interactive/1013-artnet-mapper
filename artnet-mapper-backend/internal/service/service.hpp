@@ -17,7 +17,8 @@ namespace service {
         infrastructure::AsioContextConfig asio_context_config;
         infrastructure::GraphicsConfig graphics_config;
         infrastructure::ControlsConfig controls_config;
-        bool run_pipeline;
+        bool service_run_pipeline;
+        bool service_allow_reset;
     };
 
     class Service;
@@ -49,6 +50,7 @@ namespace service {
     private:
         void initialize(const ServiceConfig &config);
         bool _run_pipeline = true;
+        bool _allow_reset = true;
         std::atomic_bool _is_started = false;
         infrastructure::ArtNetPtr _art_net = nullptr;
         infrastructure::AsioContextPtr _asio_context = nullptr;

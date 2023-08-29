@@ -21,7 +21,8 @@ namespace service {
         _art_net = infrastructure::ArtNet::Create(config.art_net_config, _asio_context->GetContext());
         _graphics = infrastructure::Graphics::Create(config.graphics_config, shared_from_this());
         _controls = infrastructure::Controls::Create(config.controls_config, shared_from_this());
-        _run_pipeline = config.run_pipeline;
+        _run_pipeline = config.service_run_pipeline;
+        _allow_reset = config.service_allow_reset;
     }
 
     void Service::Start() {
@@ -67,7 +68,9 @@ namespace service {
         // wait for last frame to ship out
         std::this_thread::sleep_for(500ms);
         // do the reboot
-        std::system("/sbin/shutdown -r now");
+        if (_allow_reset) {
+            std::system("/sbin/shutdown -r now");
+        }
     }
 
     void Service::PostPotentiometerUpdate(const float new_pot_read) {
