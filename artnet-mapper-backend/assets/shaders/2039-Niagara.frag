@@ -59,7 +59,7 @@ vec4 drawNPixels(vec2 uv) {
     value += 0.4;
     value = mix(0.5, value, contrast);
     value = min(pow(value * .8, gamma), 1.0);
-    float mult = mix(0.2, 0.7, brightness);
+    float mult = mix(0.2, 0.75, brightness);
     return vec4(vec3(value) * mult, 1.0);
 
 }
