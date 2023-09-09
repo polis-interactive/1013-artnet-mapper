@@ -3,10 +3,14 @@
 build
 cmake-*
 
-bin/app
+artnet-mapper-backend/bin/*
 
 artnet-mapper-generator/assets/*/
 
 __pycache__
 
 *.img
+
+*.key
+*.crt
+*.client

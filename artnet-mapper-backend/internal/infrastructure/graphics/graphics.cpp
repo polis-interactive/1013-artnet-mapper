@@ -3,23 +3,57 @@
 //
 
 #include <iostream>
+#include <algorithm>
+#include <numeric>
 
 #include "graphics.hpp"
 
-namespace infrastructure::graphics {
-    std::shared_ptr<Graphics> Graphics::Create(const infrastructure::graphics::Config &config) {
-        auto graphics = std::make_shared<Graphics>(config);
+namespace infrastructure {
+
+    GraphicsPtr Graphics::Create(const GraphicsConfig &config, GraphicsManagerPtr manager) {
+        auto graphics = std::make_shared<Graphics>(config, std::move(manager));
         return std::move(graphics);
     }
 
-    Graphics::Graphics(const infrastructure::graphics::Config &config):
-        _summary(config.graphics_summary),
-        _main_shader(config.graphics_shader),
-        _pixel_type_texture(config.graphics_summary, config.graphics_pixel_texture),
-        _artnet_texture(config.graphics_summary, config.graphics_artnet_texture),
-        _pbos(config),
-        _renderer(Renderer::Create(config.graphics_renderer_type, _summary))
-    {}
+    Graphics::Graphics(const GraphicsConfig &config, GraphicsManagerPtr manager):
+            _config(config.installation_config),
+            _display_shader(config.display.shader, true),
+            _pixel_type_texture(
+            _config.dimensions, config.display.pixel_texture, graphics::ImageTextureTypes::R8,
+            "pixel_type_texture", 1
+        ),
+            _artnet_texture(
+            _config.dimensions, config.display.artnet_texture, graphics::ImageTextureTypes::RGB8,
+            "artnet_texture", 2
+        ),
+            _renderer(graphics::Renderer::Create(
+            config.display.render_type, _config.dimensions, config.display.pixel_multiplier,
+            config.installation_config.rgbw_pixels
+        )),
+            _pixel_multiplier(graphics::IntUniform::Create(
+           "pixel_multiplier", (int) _config.pixel_types
+        )),
+            _resolution(graphics::Float2Uniform::Create(
+            "resolution", (float) _config.dimensions.width, (float) _config.dimensions.height
+        )),
+            _do_artnet_mapping(graphics::BoolUniform::Create(
+            "do_artnet_mapping", config.display.render_type == domain::RendererType::HEADLESS
+        )),
+            _display_uniforms({_time, _brightness, _pixel_multiplier, _resolution, _do_artnet_mapping }),
+            _frame_time(1 / _config.fps),
+            _frame_time_low_res(1 / _config.fps),
+            _render_art_net(config.display.render_art_net),
+            _frame_duration_threshold(1 / _config.threshold_fps),
+            _rolling_frames_length(_config.rolling_frames),
+            _rolling_frames_divisor(_config.rolling_frames),
+            _frames_success_threshold(1.0 - _config.threshold_dropped_frames),
+            _manager(std::move(manager))
+    {
+        for (int i = 0; i < _config.buffer_count; i++) {
+            auto buffer = new CpuPixelBuffer(_config.dimensions, _config.rgbw_pixels);
+            _cpu_buffers.push_back(buffer);
+        }
+    }
 
     Graphics::~Graphics() {
         teardown();
@@ -48,6 +82,10 @@ namespace infrastructure::graphics {
         _graphics_thread = nullptr;
     }
 
+    void Graphics::PostBrightness(const float new_brightness) {
+        _atm_brightness.store(new_brightness);
+    }
+
     void Graphics::run(const std::stop_token &st) {
         bool has_run = false;
         while (!st.stop_requested()) {
@@ -57,25 +95,165 @@ namespace infrastructure::graphics {
             has_run = true;
             setup();
             _is_ready = true;
-            runGraphics(st);
+            if (_render_art_net) {
+                runGraphicsArtNet(st);
+            } else {
+                runGraphics(st);
+            }
             _is_ready = false;
             teardown();
         }
     }
 
-    void Graphics::setup() {
-        _renderer->Setup();
-        _main_shader.Setup();
+    bool Graphics::setup() {
+        auto success = _renderer->SetupContext();
+        if (!success) {
+            return success;
+        }
+        _display_shader.Setup();
         _pixel_type_texture.Setup();
+        _pixel_type_texture.SetLocation(_display_shader._program);
         _artnet_texture.Setup();
-        _pbos.Setup();
+        _artnet_texture.SetLocation(_display_shader._program);
+        graphics::Uniform::SetupUniforms(_display_uniforms, _display_shader._program);
+
+        auto self(shared_from_this());
+        _renderer->Setup(self);
+
+        return true;
+    }
+
+    void Graphics::runGraphicsArtNet(const std::stop_token &st) {
+        auto self(shared_from_this());
+        auto run_start = utility::Clock::now();
+        auto last_frame = std::make_shared<CpuPixelBuffer>(_config.dimensions, _config.rgbw_pixels);
+        unsigned int frame_count = 0;
+        while (!st.stop_requested()) {
+            auto frame_start = utility::Clock::now();
+            auto frame_time = _frame_time_low_res.count() * frame_count;
+            _time->SetValue(frame_time);
+            _brightness->SetValue(_atm_brightness.load());
+            if (!renderNextFrame(self)) {
+                _frames_success.push_back(false);
+            } else {
+                _frames_success.push_back(true);
+            }
+            frame_count += 1;
+            // check frame rate, timeout
+            auto frame_end = std::chrono::high_resolution_clock::now();
+            utility::Clock ::duration elapsed_frame = frame_end - frame_start;
+            if (elapsed_frame < _frame_time)
+            {
+                std::this_thread::sleep_for((_frame_time - elapsed_frame));
+            }
+            _frames_duration.emplace_back(elapsed_frame);
+            if (_frames_duration.size() > _rolling_frames_length) {
+                _frames_success.pop_front();
+                const auto average_frame_success = std::count(
+                    _frames_success.begin(), _frames_success.end(), true
+                ) / _rolling_frames_length;
+                _frames_duration.pop_front();
+                const auto average_frame_duration = std::accumulate(
+                    _frames_duration.begin(), _frames_duration.end(), utility::Duration(0.0)
+                ) / _rolling_frames_divisor;
+                if (
+                    average_frame_success < _frames_success_threshold ||
+                    average_frame_duration > _frame_duration_threshold
+                ) {
+                    _manager->PostGraphicsUpdate(std::move(last_frame));
+                    _manager->RequestReboot();
+                    while (!st.stop_requested()) {
+                        std::this_thread::sleep_for(100ms); // wait to die
+                    }
+                }
+            }
+        }
+    }
+
+    void Graphics::runGraphics(const std::stop_token &st) {
+        auto self(shared_from_this());
+        unsigned int consecutive_failed_frames = 0;
+        while (!st.stop_requested()) {
+            auto start = std::chrono::high_resolution_clock::now();
+            _renderer->Render(self, nullptr);
+            // check frame rate, timeout
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsedTime = end - start;
+            if (elapsedTime < _frame_time)
+            {
+                std::this_thread::sleep_for(_frame_time - elapsedTime);
+            }
+            // here I need to handle threshold fps, as well as missed frames
+        }
+    }
+
+    bool Graphics::renderNextFrame(GraphicsPtr &self) {
+        CpuPixelBuffer *cpu_buffer = nullptr;
+        {
+            std::lock_guard<std::mutex> lk(_cpu_buffers_mutex);
+            if (!_cpu_buffers.empty()) {
+                cpu_buffer = _cpu_buffers.front();
+                _cpu_buffers.pop_front();
+            }
+        }
+        if (cpu_buffer == nullptr) {
+            return false;
+        }
+        _renderer->Render(self, cpu_buffer);
+        auto post_buffer = std::shared_ptr<CpuPixelBuffer>(
+            cpu_buffer, std::bind_front(&Graphics::requeueBuffer, shared_from_this())
+        );
+        _manager->PostGraphicsUpdate(std::move(post_buffer));
+        return true;
+    }
+
+
+    void Graphics::requeueBuffer(CpuPixelBuffer *reclaim_buffer) {
+        std::unique_lock<std::mutex> lock(_cpu_buffers_mutex);
+        _cpu_buffers.push_back(reclaim_buffer);
     }
 
     void Graphics::teardown() {
-        _pbos.Teardown();
         _artnet_texture.Teardown();
         _pixel_type_texture.Teardown();
-        _main_shader.Teardown();
+        _display_shader.Teardown();
         _renderer->Teardown();
+    }
+
+    CpuPixelBuffer::CpuPixelBuffer(const domain::Dimensions &dimensions, const bool is_rgbw):
+        _width((int) dimensions.width),
+        _height((int) dimensions.height),
+        _format(is_rgbw ? GL_RGBA : GL_RGB),
+        _size(_width * _height * (is_rgbw ? 4 : 3)),
+        _pixels(_size, 0)
+    {}
+
+    uint8_t *CpuPixelBuffer::GetMemory() {
+        return _pixels.data();
+    }
+
+    std::size_t CpuPixelBuffer::GetSize() {
+        return _size;
+    }
+
+    void CpuPixelBuffer::RenderBuffer() const {
+        glReadPixels(0, 0, _width, _height, _format, GL_UNSIGNED_BYTE, (void *) _pixels.data());
+    }
+
+    void CpuPixelBuffer::CopyRgbaToRgb(infrastructure::CpuPixelBuffer &rgba_buffer) {
+        std::vector<uint8_t>& source = rgba_buffer._pixels;
+        std::vector<uint8_t>& dest = this->_pixels;
+
+        for (GLsizei y = 0; y < _height; ++y) {
+            for (GLsizei x = 0; x < _width; ++x) {
+                // Calculate the source and destination indices
+                size_t srcIndex = (y * _width + x) * 4;
+                size_t destIndex = (y * _width + x) * 3;
+
+                dest[destIndex]     = source[srcIndex];     // R
+                dest[destIndex + 1] = source[srcIndex + 1]; // G
+                dest[destIndex + 2] = source[srcIndex + 2]; // B
+            }
+        }
     }
 }

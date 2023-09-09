@@ -17,7 +17,11 @@ namespace infrastructure::graphics {
 
     class PixelBuffer: public utility::SizedBuffer {
     public:
-        [[nodiscard]] void *GetMemory() final;
+        [[nodiscard]] uint8_t *GetMemory() final;
+        [[nodiscard]] std::size_t GetSize() final;
+        void RenderBuffer() const;
+        bool MapBuffer();
+        void UnmapBuffer();
         ~PixelBuffer();
         // no copy assignment, empty assignment
         PixelBuffer() = delete;
@@ -25,10 +29,8 @@ namespace infrastructure::graphics {
         PixelBuffer& operator= (const PixelBuffer&) = delete;
     protected:
         friend class PixelBuffers;
-        explicit PixelBuffer(const domain::InstallationSummary &summary);
-        void RenderBuffer();
-        void MapBuffer();
-        void UnmapBuffer();
+        explicit PixelBuffer(const domain::installation::Config &installation_config);
+
     private:
         const GLsizei _width;
         const GLsizei _height;
@@ -44,8 +46,8 @@ namespace infrastructure::graphics {
         PixelBuffers (const PixelBuffers&) = delete;
         PixelBuffers& operator= (const PixelBuffers&) = delete;
     protected:
-        friend class Graphics;
-        explicit PixelBuffers(const Config &summary);
+        friend class infrastructure::Graphics;
+        explicit PixelBuffers(const domain::installation::Config &installation_config);
         void Setup();
         void Teardown();
         std::deque<PixelBuffer *> _ready_queue;
@@ -54,8 +56,7 @@ namespace infrastructure::graphics {
         std::deque<PixelBuffer *> _spent_queue;
         std::mutex _spent_mutex;
     private:
-        const domain::InstallationSummary &_summary;
-        const unsigned int _pbo_count;
+        const domain::installation::Config &_installation_config;
     };
 }
 

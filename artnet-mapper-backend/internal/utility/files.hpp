@@ -6,6 +6,8 @@
 #define UTILS_FILES_HPP
 
 #include <filesystem>
+#include <fstream>
+
 
 namespace utility {
 
@@ -40,6 +42,20 @@ namespace utility {
         } catch(const std::filesystem::filesystem_error& e) {
             return Ternary::ERR;
         }
+    }
+
+    inline std::string LoadFileContent(const std::filesystem::path& path) {
+        std::ifstream fileStream(path);
+
+        if (!fileStream.is_open()) {
+            throw std::runtime_error("utility::LoadFileContent - Failed to open file: " + path.string());
+        }
+
+        std::string content(
+            (std::istreambuf_iterator<char>(fileStream)),
+            std::istreambuf_iterator<char>()
+        );
+        return content;
     }
 
 }

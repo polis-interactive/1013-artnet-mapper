@@ -17,7 +17,14 @@
           - extra-cmake-modules
           - libdrm-dev
           - libegl1-mesa-dev
-          - pigpio
+          - libgbm-dev
+          - raspberrypi-kernel-headers
+          - libxrandr-dev
+          - libxinerama-dev
+          - libxcursor-dev
+          - libxi-dev
+          - xvfb
+          - openvpn
     # SETUP PI STUFF
     - name: Remove default pi user
       ansible.builtin.user:
@@ -72,6 +79,76 @@
         path: /home/pi/build
         state: directory
         mode: '0755'
+    # IONO
+    - name: Download Iono
+      become: yes
+      become_user: pi
+      git:
+        repo: https://github.com/sfera-labs/iono-pi-kernel-module.git
+        dest: /home/pi/build/iono-pi-kernel-module
+        depth: 1
+    - name: Make Iono
+      command:
+        cmd: "make -C /lib/modules/6.1.21-v8+/build/ M=/home/pi/build/iono-pi-kernel-module modules"
+        chdir: "/home/pi/build/iono-pi-kernel-module"
+    - name: Install ionopi.ko
+      command:
+        cmd: "install -m 644 -c ionopi.ko /lib/modules/6.1.21-v8+"
+        chdir: /home/pi/build/iono-pi-kernel-module
+    - name: Run depmod for Iono
+      command:
+        cmd: "depmod 6.1.21-v8+"
+        chdir: /home/pi/build/iono-pi-kernel-module
+    - name: Build Iono Overlay
+      command:
+        cmd: "dtc -@ -Hepapr -I dts -O dtb -o ionopi.dtbo ionopi.dts"
+        chdir: /home/pi/build/iono-pi-kernel-module
+    - name: Copy Iono Overlay to Boot
+      shell:
+        cmd: cp /home/pi/build/iono-pi-kernel-module/ionopi.dtbo /boot/overlays/ionopi.dtbo
+    - name: Create ionopi group
+      group:
+        name: ionopi
+        state: present
+    - name: Copy 99-ionopi.rules to /etc/udev/rules.d/
+      shell:
+        cmd: cp /home/pi/build/iono-pi-kernel-module/99-ionopi.rules /etc/udev/rules.d/99-ionopi.rules
+    - name: Add user 'pi' to 'ionopi' group
+      user:
+        name: pi
+        groups: ionopi
+        append: yes
+    # GLFW
+    - name: Download GLFW
+      become: yes
+      become_user: pi
+      git:
+        repo: https://github.com/glfw/glfw
+        dest: /home/pi/build/glfw
+    - name: Create GLFW build dir
+      become: yes
+      become_user: pi
+      file:
+        path: /home/pi/build/glfw/build
+        state: directory
+        mode: '0755'
+    - name: Setup GLFW
+      become: yes
+      become_user: pi
+      shell:
+        chdir: /home/pi/build/glfw/build
+        cmd: cmake -DGLFW_BUILD_WAYLAND=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_X11=ON ..
+    - name: Make GLFW
+      become: yes
+      become_user: pi
+      make:
+        chdir: /home/pi/build/glfw/build
+        params:
+          NUM_THREADS: 4
+    - name: Install GLFW
+      make:
+        chdir: /home/pi/build/glfw/build
+        target: install
     # BOOST
     - name: Download Boost
       become: yes
@@ -106,7 +183,7 @@
       git:
         repo: https://github.com/polis-interactive/1014-artnet-mapper.git
         dest: /home/pi/build/1014-artnet-mapper
-        version: pi-image
+        version: renderer
     - name: Create Niagara build dir
       become: yes
       become_user: pi
@@ -137,6 +214,12 @@
     - name: Enable Niagara Service
       shell:
         cmd: systemctl enable 2039-Niagara.service
+    - name: Copy boot config
+      shell:
+        cmd: cp /home/pi/build/1014-artnet-mapper/artnet-mapper-backend/system/2039-Niagara.boot_config.txt /boot/config.txt
+    - name: Copy Cron Reboot
+      shell:
+        cmd: cp /home/pi/build/1014-artnet-mapper/artnet-mapper-backend/system/cron-reboot /etc/cron.d/reboot
     # MANAGEMENT
     - name: Create ssh dir
       become: yes
@@ -148,3 +231,4 @@
     - name: Copy authorized server key
       shell:
         cmd: cp /home/pi/build/1014-artnet-mapper/artnet-mapper-backend/management/authorized_keys.client /home/pi/.ssh/authorized_keys
+    # TODO: COPY OPENVPN CONFIG, ENABLE OPENVPN SERVICE

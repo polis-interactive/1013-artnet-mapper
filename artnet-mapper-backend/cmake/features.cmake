@@ -1,6 +1,3 @@
 
-if (
-    AM_PLATFORM STREQUAL X86_LINUX
-)
-    set(FEATURE_GRAPHICS_GLFW true)
-endif ()
+# send it with xvfb
+set(FEATURE_GRAPHICS_GLFW true)
