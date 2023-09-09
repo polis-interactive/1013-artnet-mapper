@@ -87,22 +87,6 @@ void main()
     } else if (pixel_type < 0.9) {
         frag_color = drawNPixels(tex_uv);
     } else {
-        // drop pixels
-
         frag_color = vec4(vec3(mix(0.1, 0.4, brightness)), 1.0);
-        /*
-        float barPosition = mod((time + 123.89123) * 0.05, 1.0);
-        if (tex_uv.y > barPosition - 0.075 && tex_uv.y < barPosition + 0.075) {
-            frag_color = vec4(0.0, 0.6, 0.0, 1.0);
-        } else {
-            frag_color = vec4(vec3(0.0), 1.0);
-        }
-        /*
-        if (tex_uv.x < 0.5) {
-            frag_color = vec4(0.0, 0.6, 0.0, 1.0);
-        } else {
-            frag_color = vec4(vec3(0.0), 1.0);
-        }
-        */
     }
 }
